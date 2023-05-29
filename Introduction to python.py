@@ -1,7 +1,8 @@
 # Importing course packages; you can add more too!
-from math import radians  # from math import radians
 import math  # import math
+from math import radians  # from math import radians
 import numpy as np
+
 
 # Import columns as numpy arrays
 baseball_names = np.genfromtxt(
@@ -77,7 +78,6 @@ soccer_shooting = np.genfromtxt(
 """ Multi-line comments """
 
 # Print the sum of 7 and 10
-
 print(7 + 10)
 
 # Addition, subtraction
@@ -108,7 +108,7 @@ list    -   They are a compound data type (contain one or more different data ty
 """
 
 
-""" Create a variable savings """
+# Create a variable savings
 savings = 100
 
 # Create a variable growth_multiplier
@@ -138,7 +138,7 @@ doubledesc = desc + desc
 print(doubledesc)
 
 
-""" Definition of savings and result """
+# Definition of savings and result
 savings = 100
 result = 100 * 1.10**7
 
@@ -254,7 +254,7 @@ downstairs = areas[:6]
 upstairs = areas[-4:]
 
 
-""" Create the areas list """
+# Create the areas list
 areas = [
     "hallway",
     11.25,
@@ -332,7 +332,7 @@ areas = [
 del areas[-4:-2]
 
 
-""" Create list areas """
+# Create list areas
 areas = [11.25, 18.0, 20.0, 10.75, 9.50]
 
 # Create areas_copy
@@ -362,7 +362,7 @@ help()                                      -   See documentation of function
 The general recipe for calling functions and saving the result to a variable is thus:
 output = function_name(input)
 
-Iterable as being any collection of objects, e.g., a List.
+* Iterable as being any collection of objects, e.g., a List.
 """
 
 # Create variables var1 and var2
@@ -401,8 +401,7 @@ float   -   bit_length(), conjugate()
 list    -   index(), count(), append(), reverse()
 """
 
-
-""" string to experiment with: place """
+# string to experiment with: place
 place = "poolhouse"
 
 # Use upper() on place: place_up
