@@ -79,7 +79,6 @@ plt.xscale('log')
 plt.show()
 
 
-# Import package
 # import matplotlib.pyplot as plt
 
 # Build Scatter plot
@@ -173,8 +172,6 @@ plt.xticks(tick_val, tick_lab)
 # After customizing, display the plot
 plt.show()
 
-
-# Import numpy as np
 
 # Store pop as a numpy array: np_pop
 np_pop = pop
@@ -342,9 +339,6 @@ names = ['United States', 'Australia', 'Japan',
 dr = [True, False, False, False, True, True, True]
 cpc = [809, 731, 588, 18, 200, 70, 45]
 
-# Import pandas as pd
-# import pandas as pd
-
 # Create dictionary my_dict with three key:value pairs: my_dict
 my_dict = {'country': names, 'drives_right': dr, 'cars_per_cap': cpc}
 
@@ -374,16 +368,12 @@ cars.index = row_labels
 print(cars)
 
 
-# Import pandas as pd
-
 # Import the cars.csv data: cars
 cars = pd.read_csv('Intermediate python/cars.csv')
 
 # Print out cars
 print(cars)
 
-
-# Import pandas as pd
 
 # Fix import by including index_col
 cars = pd.read_csv('Intermediate python/cars.csv', index_col=0)
@@ -707,7 +697,6 @@ brics[np.logical_and(brics["area"] > 8, brics["area"] < 10)]
 '''
 
 # Import cars data
-# import pandas as pd
 cars = pd.read_csv('Intermediate python/cars.csv', index_col=0)
 
 # Extract drives_right column as Series: dr
@@ -983,8 +972,6 @@ else :
 np.random.randint(start, end)    # The starting number is included while the end number isn't included in the generation just like during list / array subsetting.
 '''
 
-# Import numpy as np
-
 # Set the seed
 np.random.seed(123)
 
@@ -1236,11 +1223,6 @@ plt.show()
 # numpy and matplotlib imported, seed set
 np.random.seed(123)
 
-'''
-import numpy as np
-import matplotlib.pyplot as plt
-'''
-
 # Simulate random walk 250 times
 all_walks = []
 
@@ -1272,11 +1254,6 @@ plt.show()
 
 # numpy and matplotlib imported, seed set
 np.random.seed(123)
-
-'''
-import numpy as np
-import matplotlib.pyplot as plt
-'''
 
 # Simulate random walk 500 times
 all_walks = []
