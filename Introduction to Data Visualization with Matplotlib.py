@@ -37,17 +37,12 @@ ax.plot(table_name["column_name"], table_name["column_name"])
 plt.show()
 """
 
-# Import the matplotlib.pyplot submodule and name it plt
-
 # Create a Figure and an Axes with plt.subplots
-
 fig, ax = plt.subplots()
 
 # Call the show function to show the result
 plt.show()
 
-
-# Import the matplotlib.pyplot submodule and name it plt
 
 # Create a Figure and an Axes with plt.subplots
 fig, ax = plt.subplots()
@@ -246,8 +241,6 @@ ax.set_ylabel('ylabel_title')
 plt.show()
 """
 
-# Import pandas as pd
-
 # Read the data from file using read_csv
 climate_change = pd.read_csv(
     'Introduction to Data Visualization with Matplotlib\climate_change.csv', parse_dates=["date"], index_col="date"
@@ -269,7 +262,6 @@ ax.set_ylabel("Relative temperature (Celsius)")
 plt.show()
 
 
-# import matplotlib.pyplot as plt
 # Use plt.subplots to create fig and ax
 fig, ax = plt.subplots()
 
@@ -314,8 +306,6 @@ ax2 = ax.twinx()
 plot_timeseries(ax, table_name.index, table_name['column_name'], 'color_name', 'xlabel_title', 'ylabel_title')
 plt.show()
 """
-
-# import matplotlib.pyplot as plt
 
 # Initialize a Figure and Axes
 fig, ax = plt.subplots()

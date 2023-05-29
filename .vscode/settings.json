@@ -1,17 +1,26 @@
 {
 	"cSpell.words": [
+		"BOXPLOTS",
 		"brics",
 		"colour",
+		"colourblind",
+		"colours",
 		"dataframe",
 		"DATAFRAMES",
+		"diskspace",
 		"doubledesc",
 		"gapminder",
 		"Keras",
+		"linestyles",
 		"Matplotlib",
+		"PCTL",
 		"poolhouse",
+		"PRCP",
 		"pyscript",
 		"Scikit",
 		"Scra",
-		"subsetting"
+		"subsetting",
+		"TAVG",
+		"timeseries"
 	]
 }
