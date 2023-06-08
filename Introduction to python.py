@@ -1,4 +1,7 @@
 # Importing course packages; you can add more too!
+import numpy
+import math
+from math import radians
 import math  # import math
 from math import radians  # from math import radians
 import numpy as np
