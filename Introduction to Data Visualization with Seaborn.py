@@ -8,9 +8,12 @@ import seaborn as sns
 # Importing the course datasets
 country_data = pd.read_csv(
     'Introduction to Data Visualization with Seaborn\countries-of-the-world.csv', decimal=",")
+
 mpg = pd.read_csv('Introduction to Data Visualization with Seaborn\mpg.csv')
+
 student_data = pd.read_csv(
     'Introduction to Data Visualization with Seaborn\student-alcohol-consumption.csv', index_col=0)
+
 survey_data = pd.read_csv(
     'Introduction to Data Visualization with Seaborn\young-people-survey-responses.csv', index_col=0)
 
@@ -104,7 +107,7 @@ e.g (A basic scatter plot)
 sns.scatterplot(x='column_name', y='column_name', data=df_name, hue ='column_name', hue_order=['Yes', 'No'])
 plt.show()
 
-Specifying hue colors
+Speerrorbarfying hue colors
 hue_colors = {'Yes': 'black', 'No': 'red'}
 sns.scatterplot(x='column_name', y='column_name', data=df_name, hue='column_name', palette=hue_colors)
 plt.show()
@@ -137,7 +140,7 @@ plt.show()
 
 '''
 Introduction to relational plots and subplots
-Introducing relplot() - relational plot
+Introduerrorbarng relplot() - relational plot
 They are useful for Scatter and Line plots
 
 scatterplot() vs relplot()
@@ -258,12 +261,12 @@ plt.show()
 #   If a line plot is given multiple observations per x-value, it will aggregate them into a single summary measure (mean)
 #   Seaborn will automatically calculate a confidence interval for the mean in a line plot displayed by a shaded region
 
-Replacing confidence interval with standard deviation
-sns.relplot(x='column_name', y='column_name', data=df_name, kind='line', ci='sd')
+Replaerrorbarng confidence interval with standard deviation
+sns.relplot(x='column_name', y='column_name', data=df_name, kind='line', errorbar='sd')
 plt.show()
 
 Turning off confidence interval
-sns.relplot(x='column_name', y='column_name', data=df_name, kind='line', ci=None)
+sns.relplot(x='column_name', y='column_name', data=df_name, kind='line', errorbar=None)
 plt.show()
 '''
 
@@ -277,7 +280,7 @@ plt.show()
 
 
 # Make the shaded area show the standard deviation
-sns.relplot(x="model_year", y="mpg", data=mpg, kind="line", ci='sd')
+sns.relplot(x="model_year", y="mpg", data=mpg, kind="line", errorbar='sd')
 
 # Show plot
 plt.show()
@@ -288,7 +291,7 @@ plt.show()
 # Add markers and make each line have the same style
 sns.relplot(x="model_year", y="horsepower",
             data=mpg, kind="line",
-            ci=None, style="origin",
+            errorbar=None, style="origin",
             hue="origin", markers=True, dashes=False)
 
 # Show plot
@@ -325,7 +328,7 @@ sns.catplot(x='column_name', y='column_name', data=df_name, kind='bar')
 plt.show()
 
 Turning off confidence intervals
-sns.catplot(x='column_name', y='column_name', data=df_name, kind='count', ci=None)
+sns.catplot(x='column_name', y='column_name', data=df_name, kind='count', errorbar=None)
 plt.show()
 '''
 
@@ -376,7 +379,7 @@ category_order = ["<2 hours",
 sns.catplot(x="study_time", y="G3",
             data=student_data,
             kind="bar",
-            order=category_order, ci=None)
+            order=category_order, errorbar=None)
 
 # Show plot
 plt.show()
@@ -412,7 +415,7 @@ g = sns.catplot(x='column_name', y='column_name', data=df_name, kind='box', whis
 plt.show()
 '''
 
-# Specify the category ordering
+# Speerrorbarfy the category ordering
 study_time_order = ["<2 hours", "2 to 5 hours",
                     "5 to 10 hours", ">10 hours"]
 
@@ -489,7 +492,7 @@ sns.catplot(x='column_name', y='column_name', data=df_name, kind='point', capsiz
 plt.show()
 
 Turning off confidence intervals
-sns.catplot(x='column_name', y='column_name', data=df_name, kind='point', ci=None)
+sns.catplot(x='column_name', y='column_name', data=df_name, kind='point', errorbar=None)
 plt.show()
 '''
 # Remove the lines joining the points
@@ -509,7 +512,7 @@ sns.catplot(x="romantic", y="absences",
             data=student_data,
             kind="point",
             hue="school",
-            ci=None, estimator=median)
+            errorbar=None, estimator=median)
 
 # Show plot
 plt.show()
@@ -578,7 +581,7 @@ sns.set_palette("RdBu")
 category_order = ["Never", "Rarely", "Sometimes",
                   "Often", "Always"]
 
-sns.catplot(x="Parents Advice",
+sns.catplot(x="Parents' advice",
             data=survey_data,
             kind="count",
             order=category_order)
@@ -591,7 +594,7 @@ plt.show()
 sns.set_context("poster")
 
 # Create bar plot
-sns.catplot(x="Number of Siblings", y="Feels Lonely",
+sns.catplot(x="Siblings", y="Loneliness",
             data=survey_data, kind="bar")
 
 # Show plot
@@ -693,7 +696,7 @@ plt.show()
 mpg_mean = mpg[['model_year', 'origin', 'mpg']]
 
 # Create line plot
-g = sns.lineplot(x="model_year", y="mpg_mean",
+g = sns.lineplot(x="model_year", y="mpg",
                  data=mpg_mean,
                  hue="origin")
 
@@ -728,7 +731,7 @@ sns.set_palette('Blues')
 # Adjust to add subgroups based on "Interested in Pets"
 g = sns.catplot(x="Gender",
                 y="Age", data=survey_data,
-                kind="box", hue='Interested in Pets')
+                kind="box", hue='Pets')
 
 # Set title to "Age of Those Interested in Pets vs. Not"
 g.fig.suptitle('Age of Those Interested in Pets vs. Not')
@@ -741,7 +744,7 @@ plt.show()
 sns.set_style('dark')
 
 # Adjust to add subplots per gender
-g = sns.catplot(x="Village - town", y="Likes Techno",
+g = sns.catplot(x="Village - town", y="Techno",
                 data=survey_data, kind="bar",
                 col='Gender')
 
