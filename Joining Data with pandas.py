@@ -1,6 +1,5 @@
 # Import pandas
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 # Import some of the course datasets
@@ -44,9 +43,9 @@ census = pd.read_pickle("Joining Data with pandas\census.p")
 # Merge the wards and census tables on the ward column
 wards_census = wards.merge(census, on='ward')
 
-
 # Print the shape of wards_census
 print('wards_census table shape:', wards_census.shape)
+
 
 # Print the first few rows of the wards_altered table to view the change
 print(wards_altered[['ward']].head())
@@ -56,6 +55,7 @@ wards_altered_census = wards_altered.merge(census, on='ward')
 
 # Print the shape of wards_altered_census
 print('wards_altered_census table shape:', wards_altered_census.shape)
+
 
 # Print the first few rows of the census_altered table to view the change
 print(census_altered[['ward']].head())
@@ -310,7 +310,8 @@ sequels_fin = sequels.merge(financials, on='id', how='left')
 
 # Self merge with suffixes as inner join with left on sequel and right on id
 orig_seq = sequels_fin.merge(sequels_fin, how='inner', left_on='sequel',
-                             right_on='id', right_index=True, suffixes=('_org', '_seq'))
+                             right_on='id', right_index=False,
+                             suffixes=('_org', '_seq'))
 
 # Add calculation to subtract revenue_org from revenue_seq
 orig_seq['diff'] = orig_seq['revenue_seq'] - orig_seq['revenue_org']
@@ -499,7 +500,9 @@ print(popular_classic)
 
 '''
 MERGING ORDERED AND TIME-SERIES DATA
+'''
 
+'''
 Using merge_ordered()
 .merge() method: default is inner
 calling the method
@@ -523,6 +526,11 @@ pd.merge_ordered(table_name1, table_name2, on='column_name', suffixes=('_suf1', 
 WorldBank_GDP = pd.read_csv('Joining Data with pandas\WorldBank_GDP.csv')
 Usa_gdp = WorldBank_GDP[WorldBank_GDP['Country Code'] == 'USA']
 gdp = Usa_gdp[['Country Code', 'Year', 'GDP']]
+
+WorldBank_POP = pd.read_csv('Joining Data with pandas\WorldBank_POP.csv')
+Usa_pop = WorldBank_POP[WorldBank_POP['Country Code'] == 'USA']
+pop = Usa_pop[['Country Code', 'Year', 'Pop']]
+
 sp500 = pd.read_csv('Joining Data with pandas\S&P500.csv')
 
 # Use merge_ordered() to merge gdp and sp500 on year and date
