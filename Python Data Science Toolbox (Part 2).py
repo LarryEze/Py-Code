@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # Import the course datasets
 world_ind = pd.read_csv(
     'Python Data Science Toolbox (Part 2)\world_ind_pop_data.csv')
+
 tweets = pd.read_csv('Python Data Science Toolbox (Part 2)/tweets.csv')
 
 
