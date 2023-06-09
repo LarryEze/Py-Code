@@ -611,7 +611,7 @@ elif condition :
     expression
 else : 
     expression
-e.g
+
 z = 3
 if z % 2 == 0 :
     print("z is divisible by 2")    # False
