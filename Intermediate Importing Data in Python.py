@@ -18,12 +18,15 @@ urlretrieve( url, 'winequality-white.csv' )
 """
 
 # Import package
-from urllib.request import urlretrieve
 
 # Import pandas
-import pandas as pd
 
 # Assign url of file: url
+import seaborn as sns
+import re
+from urllib.request import urlopen, Request
+import matplotlib.pyplot as plt
+import pandas as pd
 url = "https://assets.datacamp.com/production/course_1606/datasets/winequality-red.csv"
 
 # Save file locally
@@ -35,8 +38,6 @@ print(df.head())
 
 
 # Import packages
-import matplotlib.pyplot as plt
-import pandas as pd
 
 # Assign url of file: url
 url = "https://assets.datacamp.com/production/course_1606/datasets/winequality-red.csv"
@@ -55,7 +56,6 @@ plt.show()
 
 
 # Import package
-import pandas as pd
 
 # Assign url of file: url
 url = "https://assets.datacamp.com/course/importing_data_into_r/latitude.xls"
@@ -110,7 +110,6 @@ response.close()
 """
 
 # Import packages
-from urllib.request import urlopen, Request
 
 # Specify the url
 url = "https://campus.datacamp.com/courses/1606/4135?ex=2"
@@ -129,7 +128,6 @@ response.close()
 
 
 # Import packages
-from urllib.request import urlopen, Request
 
 # Specify the url
 url = "https://campus.datacamp.com/courses/1606/4135?ex=2"
@@ -151,7 +149,6 @@ response.close()
 
 
 # Import package
-import requests
 
 # Specify the url: url
 url = "http://www.datacamp.com/teach/documentation"
@@ -199,8 +196,6 @@ for link in soup.find_all( 'a' ):
 """
 
 # Import packages
-import requests
-from bs4 import BeautifulSoup
 
 # Specify url: url
 url = "https://www.python.org/~guido/"
@@ -222,8 +217,6 @@ print(pretty_soup)
 
 
 # Import packages
-import requests
-from bs4 import BeautifulSoup
 
 # Specify url: url
 url = "https://www.python.org/~guido/"
@@ -251,8 +244,6 @@ print(guido_text)
 
 
 # Import packages
-import requests
-from bs4 import BeautifulSoup
 
 # Specify url
 url = "https://www.python.org/~guido/"
@@ -332,7 +323,6 @@ http://www.omdbapi.com/?t=hackers
 """
 
 # Import requests package
-import requests
 
 # Assign URL to variable: url
 url = "http://www.omdbapi.com/?apikey=72bc447a&t=the+social+network"
@@ -345,7 +335,6 @@ print(r.text)
 
 
 # Import package
-import requests
 
 # Assign URL to variable: url
 url = "http://www.omdbapi.com/?apikey=72bc447a&t=social+network"
@@ -362,7 +351,6 @@ for k in json_data.keys():
 
 
 # Import package
-import requests
 
 # Assign URL to variable: url
 url = "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=pizza"
@@ -420,14 +408,14 @@ access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
 access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
 
 # Create your Stream object with credentials
-stream = tweepy.Stream(consumer_key, consumer_secret, access_token, access_token_secret)
+stream = tweepy.Stream(consumer_key, consumer_secret,
+                       access_token, access_token_secret)
 
 # Filter your Stream variable
 stream.filter(track=["clinton", "trump", "sanders", "cruz"])
 
 
 # Import package
-import json
 
 # String of path to file: tweets_data_path
 tweets_data_path = "tweets.txt"
@@ -451,7 +439,6 @@ print(tweets_data[0].keys())
 
 
 # Import package
-import pandas as pd
 
 # Build DataFrame of tweet texts and languages
 df = pd.DataFrame(tweets_data, columns=["text", "lang"])
@@ -462,8 +449,6 @@ print(df.head())
 
 # Initialize list to store tweet counts
 [clinton, trump, sanders, cruz] = [0, 0, 0, 0]
-
-import re
 
 
 def word_in_text(word, text):
@@ -485,8 +470,6 @@ for index, row in df.iterrows():
 
 
 # Import packages
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Set seaborn style
 sns.set(color_codes=True)
