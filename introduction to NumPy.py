@@ -43,7 +43,7 @@ python_list = ['beep', False, 56, .945, [3, 2, 5]]
 # NumPy arrays can contain only a single data type
 e.g
 numpy_boolean_array = [[True, False], [True, True], [False, True]]
-numpr_float_array = [1.9, 5.4, 8.8, 3.6, 3.2]
+numpy_float_array = [1.9, 5.4, 8.8, 3.6, 3.2]
 
 Creating arrays from scratch
 There are many NumPy functions used to create arrays from scratch, including:
@@ -850,15 +850,15 @@ emphasized_blue_array = np.where(
 print(emphasized_blue_array.shape)
 
 # Remove the trailing dimension from emphasized_blue_array
-emphasized_blue_array_2D = emphasized_blue_array.reshape((675, 844))
+emphasized_blue_array_2D = emphasized_blue_array.reshape((675, 843))
 
 
 # Print the shapes of blue_array and emphasized_blue_array_2D
 print(blue_array.shape, emphasized_blue_array_2D.shape)
 
 # Reshape red_array and green_array
-red_array_2D = red_array.reshape((675, 844))
-green_array_2D = green_array.reshape((675, 844))
+red_array_2D = red_array.reshape((675, 843))
+green_array_2D = green_array.reshape((675, 843))
 
 # Stack red_array_2D, green_array_2D, and emphasized_blue_array_2D
 emphasized_blue_monet = np.stack(
