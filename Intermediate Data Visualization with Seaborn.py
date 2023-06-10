@@ -1,3 +1,9 @@
+# Importing the course packages
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 ''' Introduction to Seaborn '''
 
 '''
@@ -42,11 +48,10 @@ plt.show()
 '''
 
 # import all modules
-#   import pandas as pd
-#   import seaborn as sns
-#   import matplotlib.pyplot as plt
 
 # Read in the DataFrame
+grant_file = 'Intermediate Data Visualization with Seaborn\schoolimprovement2010grants.csv'
+
 df = pd.read_csv(grant_file)
 
 
@@ -136,6 +141,11 @@ sns.lmplot(data=df, x='column_name', y='column_name', col='column_name')
 #   The use of plotting multiple graphs while changing a single variable is often called FACETING.
 '''
 
+# Read in the DataFrame
+automobile_insurance_premiums = 'Intermediate Data Visualization with Seaborn\insurance_premiums.csv'
+
+df = pd.read_csv(automobile_insurance_premiums)
+
 # Create a regression plot of premiums vs. insurance_losses
 sns.regplot(x="insurance_losses", y="premiums", data=df)
 
@@ -189,6 +199,11 @@ sns.set_style('white')
 sns.displot(df['column_name'])
 sns.despine(left=True)
 '''
+
+# Read in the DataFrame
+fair_market_rent = 'Intermediate Data Visualization with Seaborn\FY18_4050_FMRs.csv'
+
+df = pd.read_csv(fair_market_rent)
 
 # Plot the pandas histogram
 df['fmr_2'].plot.hist()
@@ -403,7 +418,7 @@ Plot types - statistical estimates
 #   Countplot() shows the number of instances of each observation.
 
 Plots of each observation - stripplot() 
-This shows every observation in the datset.
+This shows every observation in the dataset.
 e.g
 sns.stripplot(data=df, y='column_name', x='column_name', jitter=True)
 
@@ -442,6 +457,11 @@ They display the number of instances of each variable
 e.g
 sns.countplot(data=df, y='column_name', x='column_name', hue='column_name')
 '''
+
+# Read in the DataFrame
+grant_file = 'Intermediate Data Visualization with Seaborn\schoolimprovement2010grants.csv'
+
+df = pd.read_csv(grant_file)
 
 # Create the stripplot
 sns.stripplot(data=df, x='Award_Amount', y='Model Selected', jitter=True)
@@ -532,6 +552,11 @@ e.g
 sns.regplot(data=df, x='column_name', y='column_name', x_bins=4)
 '''
 
+# Read in the DataFrame
+college_scorecard = 'Intermediate Data Visualization with Seaborn\college_datav3.csv'
+
+df = pd.read_csv(college_scorecard)
+
 # Display a regression plot for Tuition
 sns.regplot(data=df, y='Tuition', x='SAT_AVG_ALL', marker='^', color='g')
 
@@ -620,6 +645,11 @@ cols = ['A', 'B', 'C', 'D']
 sns.heatmap(df[cols].corr(), cmap='YlGnBu')
 '''
 
+# Read in the DataFrame
+daily_show_guests = 'Intermediate Data Visualization with Seaborn\daily_show_guests_cleaned.csv'
+
+df = pd.read_csv(daily_show_guests)
+
 # Create a crosstab table of the data
 pd_crosstab = pd.crosstab(df["Group"], df["YEAR"])
 print(pd_crosstab)
@@ -672,7 +702,7 @@ e.g
 sns.catplot(x='column_name', data= df, col='column_name', kind='box')
 
 FacetGrid for regression
-- FacetGrid() can also be used for scatter or regrssion plots
+- FacetGrid() can also be used for scatter or regression plots
 e.g
 g = sns.FacetGrid(df, col='column_name')
 g.map(plt.scatter, 'column_name', 'column_name')
@@ -686,6 +716,9 @@ lmplot with regression
 e.g
 sns.lmplot(data= df, x='column_name', y='column_name', col='column_name', row='column_name')
 '''
+
+# Read in the DataFrame
+df = pd.read_csv(college_scorecard)
 
 # Create FacetGrid with Degree_Type and specify the order of the rows using row_order
 g2 = sns.FacetGrid(df, row="Degree_Type", row_order=[
@@ -713,6 +746,8 @@ plt.show()
 plt.clf()
 
 
+degree_ord = ['Graduate', 'Bachelors', 'Associates', 'Certificate']
+
 # Create a FacetGrid varying by column and columns ordered with the degree_order variable
 g = sns.FacetGrid(df, col="Degree_Type", col_order=degree_ord)
 
@@ -728,6 +763,9 @@ sns.lmplot(data=df, x='UG', y='PCTPELL',
 
 plt.show()
 plt.clf()
+
+
+inst_ord = ['Public', 'Private non-profit']
 
 # Create an lmplot that has a column for Ownership, a row for Degree_Type and hue based on the WOMENONLY column
 sns.lmplot(data=df, x='SAT_AVG_ALL', y='Tuition', col="Ownership", row='Degree_Type',
@@ -763,12 +801,15 @@ e.g
 sns.pairplot(df.query('column_name < int'), vars=['column_name', 'column_name', 'column_name'], hue = 'column_name', palette='husl', plot_kws={'alpha': 0.5})
 '''
 
+df = pd.read_csv(automobile_insurance_premiums)
+
 # Create a PairGrid with a scatter plot for fatal_collisions and premiums
 g = sns.PairGrid(df, vars=["fatal_collisions", "premiums"])
 g2 = g.map(sns.scatterplot)
 
 plt.show()
 plt.clf()
+
 
 # Create the same PairGrid but map a histogram on the diag
 g = sns.PairGrid(df, vars=["fatal_collisions", "premiums"])
@@ -785,6 +826,7 @@ sns.pairplot(data=df, vars=["fatal_collisions", "premiums"], kind='scatter')
 plt.show()
 plt.clf()
 
+
 # Plot the same data but use a different color palette and color code by Region
 sns.pairplot(data=df, vars=["fatal_collisions", "premiums"],
              kind='scatter', hue='Region', palette='RdBu', diag_kws={'alpha': .5})
@@ -799,6 +841,7 @@ sns.pairplot(data=df, x_vars=["fatal_collisions_speeding", "fatal_collisions_alc
 
 plt.show()
 plt.clf()
+
 
 # plot relationships between insurance_losses and premiums
 sns.pairplot(data=df, vars=["insurance_losses", "premiums"],
@@ -842,6 +885,11 @@ g = (sns.jointplot(x='column_name', y='column_name', kind='scatter', xlim=(0, 25
 .plot_joint(sns.kdeplot))
 '''
 
+# Read in the DataFrame
+bike_share = 'Intermediate Data Visualization with Seaborn/bike_share.csv'
+
+df = pd.read_csv(bike_share)
+
 # Build a JointGrid comparing humidity and total_rentals
 sns.set_style("whitegrid")
 g = sns.JointGrid(x="hum", y="total_rentals", data=df, xlim=(0.1, 1.0))
@@ -850,6 +898,7 @@ g.plot(sns.regplot, sns.histplot)
 
 plt.show()
 plt.clf()
+
 
 # Create a jointplot similar to the JointGrid
 sns.jointplot(x="hum", y="total_rentals", kind='reg', data=df)
@@ -865,6 +914,7 @@ sns.jointplot(x="temp", y="total_rentals", kind='reg',
 plt.show()
 plt.clf()
 
+
 # Plot a jointplot showing the residuals
 sns.jointplot(x="temp", y="total_rentals", kind='resid', data=df, order=2)
 
@@ -873,6 +923,8 @@ plt.clf()
 
 
 # Create a jointplot of temp vs. casual riders
+sns.jointplot(x="temp", y="casual", kind='resid', data=df, order=2)
+
 # Include a kdeplot over the scatter plot
 g = sns.jointplot(x="temp", y="casual", kind='scatter',
                   data=df, marginal_kws=dict(bins=10))
@@ -880,6 +932,7 @@ g.plot_joint(sns.kdeplot)
 
 plt.show()
 plt.clf()
+
 
 # Replicate the above plot but only for registered riders
 g = sns.jointplot(x="temp", y="registered", kind='scatter',
@@ -897,26 +950,26 @@ pairplot    -   PairGrid
 
 jointplot   -   JointGrid
 
-displot -   FacetGrid
-lmplot  -   FacetGrid
-catplot -   FacetGrid
+displot     -   FacetGrid
+lmplot      -   FacetGrid
+catplot     -   FacetGrid
 
-kdeplot -   Matplotlib
-rugplot -   Matplotlib
+kdeplot     -   Matplotlib
+rugplot     -   Matplotlib
 residplot   -   Matplotlib
 histplot    -   Matplotlib
 ecdfplot    -   Matplotlib
-regplot -   Matplotlib
+regplot     -   Matplotlib
 pointplot   -   Matplotlib
-barplot -   Matplotlib
+barplot     -   Matplotlib
 countplot   -   Matplotlib
-boxplot -   Matplotlib
+boxplot     -   Matplotlib
 violinplot  -   Matplotlib
 boxenplot   -   Matplotlib
 swarmplot   -   Matplotlib
 stripplot   -   Matplotlib
-heatmap -   Matplotlib
-palplot -   Matplotlib 
+heatmap     -   Matplotlib
+palplot     -   Matplotlib 
 
 Univariate Distribution Analysis
 - This is used in analyzing numerical data distributions.
