@@ -107,7 +107,7 @@ e.g (A basic scatter plot)
 sns.scatterplot(x='column_name', y='column_name', data=df_name, hue ='column_name', hue_order=['Yes', 'No'])
 plt.show()
 
-Speerrorbarfying hue colors
+Specifying hue colors
 hue_colors = {'Yes': 'black', 'No': 'red'}
 sns.scatterplot(x='column_name', y='column_name', data=df_name, hue='column_name', palette=hue_colors)
 plt.show()
@@ -140,7 +140,7 @@ plt.show()
 
 '''
 Introduction to relational plots and subplots
-Introduerrorbarng relplot() - relational plot
+Introducing relplot() - relational plot
 They are useful for Scatter and Line plots
 
 scatterplot() vs relplot()
@@ -261,7 +261,7 @@ plt.show()
 #   If a line plot is given multiple observations per x-value, it will aggregate them into a single summary measure (mean)
 #   Seaborn will automatically calculate a confidence interval for the mean in a line plot displayed by a shaded region
 
-Replaerrorbarng confidence interval with standard deviation
+Replacing confidence interval with standard deviation
 sns.relplot(x='column_name', y='column_name', data=df_name, kind='line', errorbar='sd')
 plt.show()
 
@@ -415,7 +415,7 @@ g = sns.catplot(x='column_name', y='column_name', data=df_name, kind='box', whis
 plt.show()
 '''
 
-# Speerrorbarfy the category ordering
+# Specify the category ordering
 study_time_order = ["<2 hours", "2 to 5 hours",
                     "5 to 10 hours", ">10 hours"]
 
