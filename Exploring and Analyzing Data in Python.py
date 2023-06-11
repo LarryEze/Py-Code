@@ -1,3 +1,14 @@
+# import necessary packages
+from scipy.stats import linregress
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from empiricaldist import Pmf, Cdf
+from scipy.stats import norm, linregress
+import statsmodels.formula.api as smf
+
+
 ''' Read, clean, and validate '''
 
 '''
@@ -28,13 +39,11 @@ df1 = df['column_name']
 '''
 
 # Display the number of rows and columns
-#   import pandas as pd
-from scipy.stats import linregress
-nsfg = pd.read_hdf('nsfg.hdf5', 'nsfg')
-nsfg.shape
+nsfg = pd.read_hdf('Exploring and Analyzing Data in Python/nsfg.hdf5', 'nsfg')
+print(nsfg.shape)
 
 # Display the names of the columns
-nsfg.columns
+print(nsfg.columns)
 
 # Select column birthwgt_oz1: ounces
 ounces = nsfg['birthwgt_oz1']
@@ -135,6 +144,26 @@ plt.ylabel('Number of pregnancies')
 plt.show()
 
 
+# Resample the data
+def resample_rows_weighted(df, column='finalwgt', seed=None):
+    np.random.seed(seed)
+    weights = df[column]
+    probabilities = weights / weights.sum()
+    indices = np.random.choice(df.index, size=len(
+        df), replace=True, p=probabilities)
+    resampled_df = df.loc[indices].reset_index(drop=True)
+    return resampled_df
+
+
+nsfg = resample_rows_weighted(nsfg, 'wgt2013_2015')
+
+# Clean the weight variables
+pounds = nsfg['birthwgt_lb1'].replace([98, 99], np.nan)
+ounces = nsfg['birthwgt_oz1'].replace([98, 99], np.nan)
+
+# Compute total birth weight
+birth_weight = pounds + ounces/16
+
 # Create a Boolean Series for full-term babies
 full_term = nsfg['prglngth'] >= 37
 
@@ -164,7 +193,7 @@ print('Multiple full-term mean:', mult_full_term_weight.mean())
 
 '''
 Probability mass functions
-#   PMF represents the possible values in a distribution and their probalibilies
+#   PMF represents the possible values in a distribution and their probabilities
 
 - Run on the Command Prompt
 pip help
@@ -193,8 +222,10 @@ p = pmf_colname(q)
 print(p)
 '''
 
+gss = pd.read_hdf('Exploring and Analyzing Data in Python\gss.hdf5', 'gss')
+
 # Compute the PMF for year
-pmf_year = Pmf(gss['year'], normalize=False)
+pmf_year = Pmf.from_seq(gss['year'], normalize=False)
 
 # Print the result
 print(pmf_year)
@@ -204,7 +235,7 @@ print(pmf_year)
 age = gss['age']
 
 # Make a PMF of age
-pmf_age = Pmf(age)
+pmf_age = Pmf.from_seq(age)
 
 # Plot the PMF
 pmf_age.bar()
@@ -254,13 +285,16 @@ print(q)
 age = gss['age']
 
 # Compute the CDF of age
-cdf_age = Cdf(age)
+cdf_age = Cdf.from_seq(age)
 
 # Calculate the CDF of 30
 print(cdf_age[30])
 
 
 # Calculate the 75th percentile
+income = gss['realinc']
+cdf_income = Cdf.from_seq(income)
+
 percentile_75th = cdf_income.inverse(0.75)
 
 # Calculate the 25th percentile
@@ -277,7 +311,7 @@ print(iqr)
 income = gss['realinc']
 
 # Make the CDF
-cdf_income = Cdf(income)
+cdf_income = Cdf.from_seq(income)
 
 # Plot it
 cdf_income.plot()
@@ -332,9 +366,9 @@ print(high.mean())
 income = gss['realinc']
 
 # Plot the CDFs
-Cdf(income[high]).plot(label='High school')
-Cdf(income[assc]).plot(label='Associate')
-Cdf(income[bach]).plot(label='Bachelor')
+Cdf.from_seq(income[high]).plot(label='High school')
+Cdf.from_seq(income[assc]).plot(label='Associate')
+Cdf.from_seq(income[bach]).plot(label='Bachelor')
 
 # Label the axes
 plt.xlabel('Income (1986 USD)')
@@ -368,7 +402,7 @@ xs = np.linspace(-3, 3)
 ys = norm(0, 1).pdf(xs)
 plt.plot(xs, ys, color='gray')
 
-# When the points in a sample are used to esimate the PDF of the distribution they came from, the process is called Kernel Density Estimation (KDE)
+# When the points in a sample are used to estimate the PDF of the distribution they came from, the process is called Kernel Density Estimation (KDE)
 # KDE is a way of getting from a PMF, a Probability Mass Function, to a PDF, a Probability Density Function.
 
 KDE Plot
@@ -412,7 +446,7 @@ plt.clf()
 plt.plot(xs, ys, color='gray')
 
 # Create and plot the Cdf of log_income
-Cdf(log_income).plot()
+Cdf.from_seq(log_income).plot()
 
 # Label the axes
 plt.xlabel('log10 of realinc')
@@ -478,11 +512,14 @@ plt.axis([x_int, x_int, y_int, y_int])
 plt.show()
 '''
 
+brfss = pd.read_hdf(
+    'Exploring and Analyzing Data in Python/brfss.hdf5', 'brfss')
+
 # Extract age
 age = brfss['AGE']
 
 # Plot the PMF
-pmf_age = Pmf(age)
+pmf_age = Pmf.from_seq(age)
 pmf_age.bar()
 
 # Label the axes
@@ -570,7 +607,7 @@ plt.show()
 income = brfss['INCOME2']
 
 # Plot the PMF
-Pmf(income).bar()
+Pmf.from_seq(income).bar()
 
 # Label the axes
 plt.xlabel('Income level')
@@ -636,8 +673,6 @@ plt.plot(fx, fy, '-')
 # Linear Regressions only measures the strength of a linear relationship 
 '''
 
-# from scipy.stats import linregress
-
 # Extract the variables
 subset = brfss.dropna(subset=['INCOME2', '_VEGESU1'])
 xs = subset['INCOME2']
@@ -685,8 +720,6 @@ df.params
 # 'params' - It contains the estimated slope and intercept
 '''
 
-#   from scipy.stats import linregress
-#   import statsmodels.formula.api as smf
 
 # Run regression with linregress
 subset = brfss.dropna(subset=['INCOME2', '_VEGESU1'])
@@ -747,10 +780,11 @@ plt.ylabel('Income (1986 $)')
 plt.show()
 
 
-# import statsmodels.formula.api as smf
-
 # Add a new column with educ squared
 gss['educ2'] = gss['educ']**2
+
+# Add a new column with age squared
+gss['age2'] = gss['age']**2
 
 # Run a regression model with educ, educ2, age, and age2
 results = smf.ols('realinc ~ educ + educ2 + age + age2', data=gss).fit()
@@ -881,7 +915,7 @@ gss['grass'].replace(2, 0, inplace=True)
 # Run logistic regression
 results = smf.logit(
     'grass ~ age + age2 + educ + educ2 + C(sex)', data=gss).fit()
-results.params
+print(results.params)
 
 # Make a DataFrame with a range of ages
 df = pd.DataFrame()
