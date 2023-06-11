@@ -1,3 +1,11 @@
+# import necessary packages
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import uniform, binom, norm, poisson, expon
+
+
 ''' Summary Statistics '''
 
 '''
@@ -72,8 +80,10 @@ df[df['column_name'] == 'str' ]['column_name'].agg([np.mean, np.median])
 - If the data in a plot is piled up on the left, with a tail on the right, its called Right-skewed data.
 '''
 
+food_consumption = pd.read_csv(
+    'Introduction to Statistics in Python/food_consumption.csv')
+
 # Import numpy with alias np
-#   import numpy as np
 
 # Filter for Belgium
 be_consumption = food_consumption[food_consumption['country'] == 'Belgium']
@@ -89,8 +99,8 @@ print(be_consumption.agg(np.median))
 print(usa_consumption.agg(np.mean))
 print(usa_consumption.agg(np.median))
 
+
 # Import numpy as np
-#   import numpy as np
 
 # Subset for Belgium and USA only
 be_and_usa = food_consumption[(food_consumption['country'] == 'Belgium') | (
@@ -101,7 +111,6 @@ print(be_and_usa.groupby('country')['consumption'].agg([np.mean, np.median]))
 
 
 # Import matplotlib.pyplot with alias plt
-#   import matplotlib.pyplot as plt
 
 # Subset for food_category equals rice
 rice_consumption = food_consumption[food_consumption['food_category'] == 'rice']
@@ -213,7 +222,6 @@ print(food_consumption.groupby('food_category')
       ['co2_emission'].agg([np.var, np.std]))
 
 # Import matplotlib.pyplot with alias plt
-#   import matplotlib.pyplot as plt
 
 # Create histogram of co2_emission for food_category 'beef'
 plt.hist(
@@ -231,6 +239,7 @@ plt.show()
 # Calculate total co2_emission per country: emissions_by_country
 emissions_by_country = food_consumption.groupby('country')[
     'co2_emission'].sum()
+print(emissions_by_country)
 
 # Compute the first and third quantiles and IQR of emissions_by_country
 q1 = np.quantile(emissions_by_country, 0.25)
@@ -304,7 +313,7 @@ df.sample(5, replace = True)    <- in
 0   Amir      178     <- out
 
 Independent events
--   Two events are independent if the probability of the second event isnt affected by the outcome of the first event.
+-   Two events are independent if the probability of the second event isn't affected by the outcome of the first event.
 -   Sampling with replacement = each pick is independent
 
 Dependent events
@@ -312,8 +321,12 @@ Dependent events
 -   Sampling without replacement = each pick is dependent
 '''
 
+amir_deals = pd.read_csv(
+    'Introduction to Statistics in Python/amir_deals.csv')
+
 # Count the deals for each product
 counts = amir_deals['product'].value_counts()
+print(counts)
 
 # Calculate probability of picking a deal with each product
 probs = counts / amir_deals['product'].count()
@@ -396,20 +409,24 @@ Sample_size Mean
 1000        3.48
 '''
 
+restaurant_groups = pd.read_csv(
+    'Introduction to Statistics in Python/restaurant_groups.csv')
+
 # Create a histogram of restaurant_groups and show plot
 restaurant_groups['group_size'].hist(bins=[2, 3, 4, 5, 6])
 plt.show()
 
 # Create probability distribution
-size_dist = restaurant_groups['group_size'].value_counts(
-) / restaurant_groups['group_size'].count()
+'''
+size_dist = restaurant_groups['group_size'].value_counts() / restaurant_groups['group_size'].count()
+'''
 # or
 size_dist = restaurant_groups['group_size'].value_counts(
 ) / restaurant_groups.shape[0]
 
 # Reset index and rename columns
 size_dist = size_dist.reset_index()
-size_dist.columns = ['group_Size', 'prob']
+size_dist.columns = ['group_size', 'prob']
 print(size_dist)
 
 # Calculate expected value
@@ -439,9 +456,9 @@ P(4 <= wait time >= 7)
 from scipy.stats import uniform
 uniform.cdf(7, 0, 12) - uniform.cdf(4, 0, 12)
 
-# Unifrom.cdf(value, lower_limit, uper_limit)
+# Uniform.cdf(value, lower_limit, upper_limit)
 
-Generating random numbers according to unifrom distribution
+Generating random numbers according to uniform distribution
 e.g
 from scipy.stats import uniform
 uniform.rvs(0, 5, 10)
@@ -488,7 +505,7 @@ plt.show()
 
 '''
 The binomial distribution
-# Coin flip = Binary outcomes (probability of each (Head / Tail) occuring is 50%)
+# Coin flip = Binary outcomes (probability of each (Head / Tail) occurring is 50%)
 
 A single flip
 binom.rvs(no of coins, probability of heads/success, size=no of trials)
@@ -516,7 +533,7 @@ binom.rvs(3, 0.25, size=10) <- in
 array([1, 1, 1, 1, 0, 0, 2, 0, 1, 0]) <- out
 
 Binomial distribution
-- This decribes the probability distribution of the number of successes in a sequence of independent trials 
+- This describes the probability distribution of the number of successes in a sequence of independent trials 
 e.g Number of heads in a sequence of coin flips
 Described by n and p
 - n: total number of trials being preformed
@@ -767,6 +784,7 @@ print(sample_means)
 # Convert to Series and plot histogram
 sample_means_series = pd.Series(sample_means)
 sample_means_series.hist()
+
 # Show plot
 plt.show()
 
@@ -831,7 +849,7 @@ from scipy.stats import poisson
 1 - poisson.cdf(5, 8) <- in
 0.8087639 <- out about 80% chance
 
-Sampling from a Poisson distribtion
+Sampling from a Poisson distribution
 poisson.rvs(mean, size=sample_size)
 e.g
 from scipy.stats import poisson
@@ -867,11 +885,11 @@ print(prob_over_10)
 '''
 More probability distributions
 Exponential distribution
-- This represents the probabilty of a certain time passing between Poisson events.
+- This represents the probability of a certain time passing between Poisson events.
 - e.g
-*   Probabilty of >1 day between adoptions
-*   Probabilty of <10 minutes between restaurant arrivals
-*   Probabilty of 6-8 months between earthquakes
+*   probability of >1 day between adoptions
+*   probability of <10 minutes between restaurant arrivals
+*   probability of 6-8 months between earthquakes
 - It also uses Lambda which represents the rate, that the Poisson distribution does.
 - It is Continuous, unlike the Poisson distribution, since it represents time.
 
@@ -938,7 +956,7 @@ print(expon.cdf(4, scale=2.5) - expon.cdf(3, scale=2.5))
 Correlation
 Relationships between 2 variables
 *   x-axis =  Explanatory / Independent variable
-*   y-axis = Response / Deprndent variable
+*   y-axis = Response / Dependent variable
 
 Correlation coefficient
 - Quantifies the linear relationship between 2 variables
@@ -980,6 +998,9 @@ Many ways to calculate correlation
 *   Spearman's rho
 '''
 
+world_happiness = pd.read_csv(
+    'Introduction to Statistics in Python\world_happiness.csv')
+
 # Create a scatterplot of happiness_score vs. life_exp and show
 sns.scatterplot(x='life_exp', y='happiness_score',  data=world_happiness)
 
@@ -1004,7 +1025,7 @@ Non-Linear relationships (e.g Quadratic relationship)
 e.g
 r = 0.18
 
-Correlation only accounts for linear realtionships
+Correlation only accounts for linear relationships
 Note: The correlation coefficient measures the strength of linear relationships, and linear relationships only.
 - Correlation shouldn't be used blindly
 - Always visualize your data
@@ -1119,14 +1140,14 @@ The gold standard of experiments will use...
 *   Person administering the treatment / running the study doesn't know whether the treatment is real or a placebo
 *   Prevents bias in the response and / or analysis of results
 
-Fewer oppourtunities for bias = more reliable conclusion about causation
+Fewer opportunities for bias = more reliable conclusion about causation
 
 
 Observational studies
 - Participants are not assigned randomly to groups
 *   Participants assign themselves, usually based on pre-existing characteristics
 - Many research questions are not conducive to a controlled experiment
-*   You can't force someone to smoke or have a diesease
+*   You can't force someone to smoke or have a disease
 *   You can't make someone have certain past behaviour
 - Establish association, not causation
 *   Effects can be confounded by factors that got certain people into the control or treatment group
