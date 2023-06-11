@@ -724,12 +724,12 @@ help(np.unique) - For function
 help(np.ndarray.flatten) - For method
 '''
 
-'''# Load the mystery_image.npy file
+# Load the mystery_image.npy file
 with open('mystery_image.npy', 'rb') as f:
     rgb_array = np.load(f)
 
 plt.imshow(rgb_array)
-plt.show()'''
+plt.show()
 
 
 # Display the documentation for .astype()
