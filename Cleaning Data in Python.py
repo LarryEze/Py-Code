@@ -1,3 +1,13 @@
+# import necessary packages
+import pandas as pd
+import numpy as np
+import datetime as dt
+import missingno as msno
+import matplotlib.pyplot as plt
+from thefuzz import process
+import recordlinkage
+
+
 ''' Common data problems '''
 
 '''
@@ -91,6 +101,8 @@ top                   1
 freq                120 -> out
 '''
 
+ride_sharing = pd.read_csv('Cleaning Data in Python/ride_sharing_new.csv')
+
 # Print the information of ride_sharing
 print(ride_sharing.info())
 
@@ -103,7 +115,7 @@ ride_sharing['user_type_cat'] = ride_sharing['user_type'].astype('category')
 # Write an assert statement confirming the change
 assert ride_sharing['user_type_cat'].dtype == 'category'
 
-# Print new summary statistics 
+# Print new summary statistics
 print(ride_sharing['user_type_cat'].describe())
 
 
@@ -116,8 +128,8 @@ ride_sharing['duration_time'] = ride_sharing['duration_trim'].astype('int')
 # Write an assert statement making sure of conversion
 assert ride_sharing['duration_time'].dtype == 'int'
 
-# Print formed columns and calculate average ride duration 
-print(ride_sharing[['duration','duration_trim','duration_time']])
+# Print formed columns and calculate average ride duration
+print(ride_sharing[['duration', 'duration_trim', 'duration_time']])
 print(ride_sharing['duration_time'].mean())
 
 
@@ -244,7 +256,7 @@ height_weight.head() -> in
 0         Lane     Reese               534-1559 Nam St.     181     64
 1         Ivor    Pierce              102-3364 Non Road     168     66
 2        Roary    Gibson    P.O. Box 344, 7785 Nisi Ave     191     99
-3      Shannon    Little   691-2550 Consectetuer Street     185     65
+3      Shannon    Little   691-2550 Consectetur Street     185     65
 4        Abdul       Fry                 4565 Risus St.     169     65 -> out
 
 # Get duplicates across all columns
@@ -265,7 +277,7 @@ height_weight[ duplicates ] -> in
 100       Mary     Colon                           4674 Ut Rd.    179     75
 101       Ivor    Pierce                     102-3364 Non Road    168     66
 102       Cole    Palmer                       8366 At, Street    178     91
-103    Desirae   Shannon  P.O. Box 643, 5251 Consectetuer, Rd.    196     83 -> out
+103    Desirae   Shannon  P.O. Box 643, 5251 Consectetur, Rd.    196     83 -> out
 
 The .duplicated() method
 subset: List of column names to check for duplication
@@ -280,7 +292,7 @@ subset: List of column names to check for duplication
 keep: Whether to keep first ('first), last ('last'), or all (False) duplicate values
 inplace: Drop duplicated rows directly inside DataFrame without creating new object ( True )
 
-# Drop dublicates
+# Drop duplicates
 height_weight.drop_duplicates( inplace =  True )
 
 # OR
@@ -297,13 +309,13 @@ height_weight[ duplicates ].sort_values( by = 'first_name' )
 '''
 
 # Find duplicates
-duplicates = ride_sharing.duplicated(subset = 'ride_id', keep = False)
+duplicates = ride_sharing.duplicated(subset='ride_id', keep=False)
 
 # Sort your duplicated rides
 duplicated_rides = ride_sharing[duplicates].sort_values('ride_id')
 
 # Print relevant columns of duplicated_rides
-print(duplicated_rides[['ride_id','duration','user_birth_year']])
+print(duplicated_rides[['ride_id', 'duration', 'user_birth_year']])
 
 
 # Drop complete duplicates from ride_sharing
@@ -316,7 +328,7 @@ statistics = {'user_birth_year': 'min', 'duration': 'mean'}
 ride_unique = ride_dup.groupby('ride_id').agg(statistics).reset_index()
 
 # Find duplicated values again
-duplicates = ride_unique.duplicated(subset = 'ride_id', keep = False)
+duplicates = ride_unique.duplicated(subset='ride_id', keep=False)
 duplicated_rides = ride_unique[duplicates == True]
 
 # Assert duplicates are processed
@@ -398,6 +410,11 @@ A note on joins
 - Anti Joins: What is in A and not in B
 - Inner Joins: What is in both A and B
 '''
+
+airlines = pd.read_csv('Cleaning Data in Python/airlines_final.csv')
+
+categories = pd.DataFrame({'cleanliness': ['Clean', 'Average', 'Somewhat clean', 'Somewhat dirty', 'Dirty'], 'safety': ['Neutral', 'Very safe', 'Somewhat safe',
+                          'Very unsafe',  'Somewhat unsafe'], 'satisfaction': ['Very satisfied', 'Neutral', 'Somewhat satisfied', 'Somewhat unsatisfied', 'Very unsatisfied']})
 
 # Print categories DataFrame
 print(categories)
@@ -535,8 +552,8 @@ print(airlines['dest_region'].unique())
 print(airlines['dest_size'].unique())
 
 # Lower dest_region column and then replace "eur" with "europe"
-airlines['dest_region'] = airlines['dest_region'].str.lower() 
-airlines['dest_region'] = airlines['dest_region'].replace({'eur':'europe'})
+airlines['dest_region'] = airlines['dest_region'].str.lower()
+airlines['dest_region'] = airlines['dest_region'].replace({'eur': 'europe'})
 
 # Remove white spaces from `dest_size`
 airlines['dest_size'] = airlines['dest_size'].str.strip()
@@ -551,10 +568,12 @@ label_ranges = [0, 60, 180, np.inf]
 label_names = ['short', 'medium', 'long']
 
 # Create wait_type column
-airlines['wait_type'] = pd.cut(airlines['wait_min'], bins = label_ranges, labels = label_names)
+airlines['wait_type'] = pd.cut(
+    airlines['wait_min'], bins=label_ranges, labels=label_names)
 
 # Create mappings and replace
-mappings = {'Monday':'weekday', 'Tuesday':'weekday', 'Wednesday': 'weekday', 'Thursday': 'weekday', 'Friday': 'weekday', 'Saturday': 'weekend', 'Sunday': 'weekend'}
+mappings = {'Monday': 'weekday', 'Tuesday': 'weekday', 'Wednesday': 'weekday',
+            'Thursday': 'weekday', 'Friday': 'weekday', 'Saturday': 'weekend', 'Sunday': 'weekend'}
 
 airlines['day_week'] = airlines['day'].replace(mappings)
 
@@ -614,7 +633,7 @@ phones -> in
 # Find length of each row in Phone number column
 sanity_check = phone['Phone number'].str.len()
 
-# Assert minmum phone number length is 10
+# Assert minimum phone number length is 10
 assert sanity_check.min() >= 10
 
 # Assert all numbers do not have '+' or '-'
@@ -645,16 +664,16 @@ phones.head() -> in
 '''
 
 # Replace "Dr." with empty string ""
-airlines['full_name'] = airlines['full_name'].str.replace("Dr.","")
+airlines['full_name'] = airlines['full_name'].str.replace("Dr.", "")
 
 # Replace "Mr." with empty string ""
-airlines['full_name'] = airlines['full_name'].str.replace("Mr.","")
+airlines['full_name'] = airlines['full_name'].str.replace("Mr.", "")
 
 # Replace "Miss" with empty string ""
-airlines['full_name'] = airlines['full_name'].str.replace("Miss","")
+airlines['full_name'] = airlines['full_name'].str.replace("Miss", "")
 
 # Replace "Ms." with empty string ""
-airlines['full_name'] = airlines['full_name'].str.replace("Ms.","")
+airlines['full_name'] = airlines['full_name'].str.replace("Ms.", "")
 
 # Assert that full_name has no honorifics
 assert airlines['full_name'].str.contains('Ms.|Mr.|Miss|Dr.').any() == False
@@ -719,7 +738,7 @@ December 25th 2019      %c
 
 pandas.to_datetime()
 - can recognize most formats automatically
-- Sometimes fails with erroneous or unrecgnizable formats
+- Sometimes fails with erroneous or unrecognizable formats
 
 # Converts to datetime - but won't work!
 birthdays['Birthday'] = pd.to_datetime( birthdays['Birthday']) -> in
@@ -757,6 +776,9 @@ is 2019-03-03 in August or March?
 * Infer format by understanding previous and subsequent data in DataFrame
 '''
 
+banking = pd.read_csv(
+    'Cleaning Data in Python/banking_dirty.csv', parse_dates=['birth_date'])
+
 # Find values of acct_cur that are equal to 'euro'
 acct_eu = banking['acct_cur'] == 'euro'
 
@@ -770,15 +792,15 @@ banking.loc[acct_eu, 'acct_cur'] = 'dollar'
 assert banking['acct_cur'].unique() == 'dollar'
 
 
-# Print the header of account_opend
+# Print the header of account_opened
 print(banking['account_opened'].head())
 
 # Convert account_opened to datetime
 banking['account_opened'] = pd.to_datetime(banking['account_opened'],
                                            # Infer datetime format
-                                           infer_datetime_format = True,
+                                           infer_datetime_format=True,
                                            # Return missing value for error
-                                           errors = 'coerce') 
+                                           errors='coerce')
 
 # Get year of account opened
 banking['acct_year'] = banking['account_opened'].dt.strftime('%Y')
@@ -848,7 +870,7 @@ What to do when we catch inconsistencies?
 fund_columns = ['fund_A', 'fund_B', 'fund_C', 'fund_D']
 
 # Find rows where fund_columns row sum == inv_amount
-inv_equ = banking[fund_columns].sum(axis = 1) == banking['inv_amount']
+inv_equ = banking[fund_columns].sum(axis=1) == banking['inv_amount']
 
 # Store consistent and inconsistent data
 consistent_inv = banking[inv_equ]
@@ -863,7 +885,7 @@ today = dt.date.today()
 ages_manual = today.year - banking['birth_date'].dt.year
 
 # Find rows where age column == ages_manual
-age_equ = banking['age'] == ages_manual
+age_equ = banking['Age'] == ages_manual
 
 # Store consistent and inconsistent data
 consistent_ages = banking[age_equ]
@@ -971,7 +993,7 @@ Simple approaches:
 - Impute with statistical measures (mean, median, mode ...)
 
 More complex approaches:
-- Imputting using an algorithmic approach
+- Imputing using an algorithmic approach
 - Impute with machine learning models
 '''
 
@@ -987,13 +1009,13 @@ missing_investors = banking[banking['inv_amount'].isna()]
 investors = banking[~banking['inv_amount'].isna()]
 
 # Sort banking by age and visualize
-banking_sorted = banking.sort_values(by = 'age')
+banking_sorted = banking.sort_values(by='Age')
 msno.matrix(banking_sorted)
 plt.show()
 
 
 # Drop missing values of cust_id
-banking_fullid = banking.dropna(subset = ['cust_id'])
+banking_fullid = banking.dropna(subset=['cust_id'])
 
 # Compute estimated acct_amount
 acct_imp = banking_fullid['inv_amount'] * 5
@@ -1054,7 +1076,7 @@ from thefuzz import process
 
 # Define string and array of possible matches
 string = 'Houston Rockets vs Los Angeles Lakers'
-choices = pd.Series( ['Rockets vs Lakers', 'Lakers vs Rockets', 'Houson vs Los Angeles', 'Heat vs Bulls'] )
+choices = pd.Series( ['Rockets vs Lakers', 'Lakers vs Rockets', 'Houston vs Los Angeles', 'Heat vs Bulls'] )
 process.extract(string, choices, limit = 2) -> in
 
 [( 'Rockets vs Lakers', 86, 0), ('Lakers vs Rockets' 86, 1)] -> out
@@ -1084,7 +1106,7 @@ print(categories) -> in
 
 # For each correct category
 for state in categories['state']:
-    # Find potential matches in states with typoes
+    # Find potential matches in states with typo's
     matches = process.extract(state, survey['state'], limit = survey.shape[0])
         # For each potential match match
         for potential_match in matches:
@@ -1094,39 +1116,48 @@ for state in categories['state']:
                 survey.loc[ survey['state'] == potential_match[0], 'state'] = state 
 '''
 
+restaurants = pd.read_csv('Cleaning Data in Python/restaurants_L2.csv')
+
 # Import process from thefuzz
-from thefuzz import process
 
 # Store the unique values of cuisine_type in unique_types
-unique_types = restaurants['cuisine_type'].unique()
+unique_types = restaurants['type'].unique()
 
 # Calculate similarity of 'asian' to all values of unique_types
-print(process.extract('asian', unique_types, limit = len(unique_types)))
+print(process.extract('asian', unique_types, limit=len(unique_types)))
 
 # Calculate similarity of 'american' to all values of unique_types
-print(process.extract('american', unique_types, limit = len(unique_types)))
+print(process.extract('american', unique_types, limit=len(unique_types)))
 
 # Calculate similarity of 'italian' to all values of unique_types
-print(process.extract('italian', unique_types, limit = len(unique_types)))
+print(process.extract('italian', unique_types, limit=len(unique_types)))
 
 
 # Inspect the unique values of the cuisine_type column
-print(restaurants['cuisine_type'].unique())
+print(restaurants['type'].unique())
+
+# Create a list of matches, comparing 'italian' with the cuisine_type column
+matches = process.extract(
+    'italian', restaurants['type'], limit=restaurants.shape[0])
+
+# Inspect the first 5 matches
+print(matches[0:5])
 
 # Iterate through categories
-for cuisine in categories:  
+for cuisine in categories:
     # Create a list of matches, comparing cuisine with the cuisine_type column
-    matches = process.extract(cuisine, restaurants['cuisine_type'], limit=len(restaurants.cuisine_type))
+    matches = process.extract(
+        cuisine, restaurants['type'], limit=len(restaurants.type))
 
     # Iterate through the list of matches
     for match in matches:
         # Check whether the similarity score is greater than or equal to 80
         if match[1] >= 80:
             # If it is, select all rows where the cuisine_type is spelled this way, and set them to the correct cuisine
-            restaurants.loc[restaurants['cuisine_type'] == match[0]] = cuisine
+            restaurants.loc[restaurants['type'] == match[0]] = cuisine
 
 # Inspect the final result
-print(restaurants['cuisine_type'].unique())
+print(restaurants['type'].unique())
 
 
 '''
@@ -1176,11 +1207,14 @@ Finding the only pairs we want
 potential_matches[ potential_matches.sum(axis = 1) => 2]
 '''
 
+restaurants_new = pd.read_csv(
+    'Cleaning Data in Python/restaurants_L2_dirty.csv')
+
 # Create an indexer and object and find possible pairs
 indexer = recordlinkage.Index()
 
 # Block pairing on cuisine_type
-indexer.block('cuisine_type')
+indexer.block('type')
 
 # Generate pairs
 pairs = indexer.index(restaurants, restaurants_new)
@@ -1188,18 +1222,18 @@ pairs = indexer.index(restaurants, restaurants_new)
 # Create a comparison object
 comp_cl = recordlinkage.Compare()
 
-# Find exact matches on city, cuisine_types - 
+# Find exact matches on city, cuisine_types -
 comp_cl.exact('city', 'city', label='city')
-comp_cl.exact('cuisine_type', 'cuisine_type', label='cuisine_type')
+comp_cl.exact('type', 'type', label='cuisine_type')
 
 # Find similar matches of rest_name
-comp_cl.string('rest_name', 'rest_name', label='name', threshold = 0.8) 
+comp_cl.string('name', 'name', label='name', threshold=0.8)
 
 # Get potential matches and print
 potential_matches = comp_cl.compute(pairs, restaurants, restaurants_new)
 print(potential_matches)
 
-potential_matches[potential_matches.sum(axis = 1) >= 3] 
+potential_matches[potential_matches.sum(axis=1) >= 3]
 
 
 '''
@@ -1227,7 +1261,7 @@ full_census = census_A.append(census_B_new)
 '''
 
 # Isolate potential matches with row sum >=3
-matches = potential_matches[potential_matches.sum(axis = 1) >= 3]
+matches = potential_matches[potential_matches.sum(axis=1) >= 3]
 
 # Get values of second column index of matches
 matching_indices = matches.index.get_level_values(1)
