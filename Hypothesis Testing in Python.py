@@ -1,3 +1,13 @@
+# import necessary packages
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import norm, t, chisquare
+from statsmodels.stats.proportion import proportions_ztest
+import pingouin
+
+
 ''' Introduction to Hypothesis Testing '''
 
 '''
@@ -14,7 +24,7 @@ print(stack_overflow)
 
 Hypothesizing about the mean
 A hypothesis:
-The mean anual compensation of the population of data scientists is $110,000
+The mean annual compensation of the population of data scientists is $110,000
 
 The point estimate (sample statistic):
 mean_comp_samp = stack_overflow['converted_comp'].mean() <- in
@@ -30,7 +40,7 @@ for i in range(5000):
         # Step 2. Calculate point estimate
         np.mean(
             # Step 1. Resample
-            stack_overflow.sampe(frac=1, replace=True)['converted_comp']
+            stack_overflow.sample(frac=1, replace=True)['converted_comp']
         )
     )
 
@@ -66,12 +76,16 @@ Z_score = (mean_comp_samp - mean_comp_hyp) / std_error <- in
 - The z-score is a standardized measure of the difference between the sample statistic and the hypothesized statistic.
 
 Testing the hypothesis
-Hypothsis testing use case:
+Hypothesis testing use case:
 Determine whether sample statistics are too close or far away from expected (or "hypothesized" values)
 
 Standard normal ( Z ) distribution
 Standard normal distribution: normal distribution with mean  0 + standard deviation = 1
 '''
+
+# Read the Feather file
+late_shipments = pd.read_feather(
+    'Hypothesis Testing in Python\late_shipments.feather')
 
 # Print the late_shipments dataset
 print(late_shipments)
@@ -85,6 +99,14 @@ print(late_prop_samp)
 
 # Hypothesize that the proportion is 6%
 late_prop_hyp = 0.06
+
+late_shipments_boot_distn = []
+for i in range(5000):
+    late_shipments_boot_distn.append(
+        np.mean(
+            late_shipments.sample(frac=1, replace=True)['late_delivery']
+        )
+    )
 
 # Calculate the standard error
 std_error = np.std(late_shipments_boot_distn)
@@ -215,7 +237,7 @@ p_value = 1 - norm.cdf(z_score, loc=0, scale=1) -> in
 
 3.1471479512323874e-05 -> out
 
-Making a decison
+Making a decision
 alpha = 0.05
 print(p_value) -> in
 
@@ -265,7 +287,7 @@ print((lower, upper))
 Performing t-tests
 Two-sample problems
 - Compare sample statistics across groups of a variable
-* 'converted_comp' is a numeriacal variable
+* 'converted_comp' is a numerical variable
 * 'age_first_code_cut' is a categorical variable with levels ('child' and 'adult')
 
 Are users who first programmed as a child compensated higher than those that started as adults?
@@ -340,6 +362,18 @@ denominator = np.sqrt(s_child ** 2 / n_child + s_adult ** 2 / n_adult)
 t_stat = numerator / denominator -> in
 1.8699313316221844 -> out
 '''
+
+no = late_shipments[late_shipments['late'] == 'No']
+yes = late_shipments[late_shipments['late'] == 'Yes']
+
+xbar_no = no['weight_kilograms'].mean()
+xbar_yes = yes['weight_kilograms'].mean()
+
+s_no = no['weight_kilograms'].std()
+s_yes = yes['weight_kilograms'].std()
+
+n_no = no['weight_kilograms'].count()
+n_yes = yes['weight_kilograms'].count()
 
 # Calculate the numerator of the test statistic
 numerator = xbar_no - xbar_yes
@@ -439,7 +473,7 @@ From two samples to one
 sample_data = repub_votes_potus_08_12
 sample_data['diff'] = sample_data['repub_percent_08'] - sample_data['repub_percent_12']
 
-impor matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 sample_data['diff'].hist(bins = 20)
 
 Calculate sample statistics of the difference
@@ -482,7 +516,7 @@ p_value = t.cdf( t_stat, df= n_diff - 1) <- in
 
 9.572537285272411e-08 <- out
 
-Therefore: Reject the Ho (null hypotheses) in favour of the Ha (alternative hypotheses) that the Repulican candidates got a smaller percentage of the vote in 2008 compared to 2012.
+Therefore: Reject the Ho (null hypotheses) in favour of the Ha (alternative hypotheses) that the Republican candidates got a smaller percentage of the vote in 2008 compared to 2012.
 
 Testing differences between two means using ttest()
 import pingouin
@@ -499,6 +533,10 @@ T-test     99        less 9.572537e-08 [-inf, -2.02] 0.560104 1.323e+05   1.0 <-
 
 Note: Unpaired t-tests on paired data increases the chances of false negative errors
 '''
+
+# Read the Feather file
+sample_dem_data = pd.read_feather(
+    'Hypothesis Testing in Python/dem_votes_potus_12_16.feather')
 
 # Calculate the differences from 2012 to 2016
 sample_dem_data['diff'] = sample_dem_data['dem_percent_12'] - \
@@ -549,7 +587,7 @@ plt.show()
 
 Analysis of variance (ANOVA)
 - A test for differences between groups
-* dv = Depedent variable
+* dv = Dependent variable
 * between = Column of groups to calculate 
 * p-unc = p-val
 e.g
@@ -687,7 +725,7 @@ t = ( X-bar(child) - X-bar(adult) ) / square root ( ( S^2(child) / n(child) ) + 
 - S is calculated from X-bar
 * X-bar estimates the population mean
 * S estimates the population standard deviation
-* Increased uncertainty in out eestimate of the parameter
+* Increased uncertainty in out estimate of the parameter
 - t-distribution - fatter tails than a normal distribution
 - P-hat only appears in the numerator, so z-scores are fine
 
@@ -710,7 +748,7 @@ p_0 = 0.5
 n = len(stack_overflow) <- in
 2261 <- out
 
-Calculatig the z-score
+Calculating the z-score
 import numpy as np
 numerator =  p_hat - p_0
 denominator = np.sqrt(p_0 * ( 1 - p_0) / n)
@@ -835,6 +873,13 @@ i.e
 The p-value is smaller than the 0.5 significance level we specified, so we can conclude that there is a difference in the proportion of hobbyists between the two age groups.
 '''
 
+p_hats = late_shipments.groupby('freight_cost_groups')[
+    'late'].value_counts(normalize=True)
+p_hats = p_hats[p_hats.index.get_level_values('late') == 'Yes']
+
+ns = late_shipments.groupby('freight_cost_groups')[
+    'late'].count()
+
 # Calculate the pooled estimate of the population proportion
 p_hat = (p_hats["reasonable"] * ns["reasonable"] + p_hats["expensive"]
          * ns["expensive"]) / (ns["reasonable"] + ns["expensive"])
@@ -860,14 +905,14 @@ print(p_value)
 
 
 # Count the late column values for each freight_cost_group
-late_by_freight_cost_group = late_shipments.groupby("freight_cost_group")[
+late_by_freight_cost_group = late_shipments.groupby("freight_cost_groups")[
     'late'].value_counts()
 
 # Create an array of the "Yes" counts for each freight_cost_group
-success_counts = np.array([45, 16])
+success_counts = np.array([42, 16])
 
 # Create an array of the total number of rows in each freight_cost_group
-n = np.array([500 + 45, 439 + 16])
+n = np.array([489 + 42, 439 + 16])
 
 # Run a z-test on the two proportions
 stat, p_value = proportions_ztest(
@@ -924,7 +969,7 @@ Ha: Age categories are not independent of job satisfaction levels
 
 alpha = 0.1
 
-* Test statistic donoted X^2
+* Test statistic denoted X^2
 * Assuming independence, how far away are the observed results from the expected values?
 
 Exploratory visualization: proportional stacked bar plot
@@ -945,7 +990,7 @@ print(stats) <- in
 4 mod-log-likelihood -1.000000 5.567570 4.0 0.233854 0.049623 0.438538
 5             neyman -2.000000 5.579519 4.0 0.232828 0.049676 0.439419 <- out
 
-Degress of freedom:
+Degrees of freedom:
 ( No. of response categories - 1 ) x ( No. of explanatory categories - 1 ) 
 ( 2 - 1 ) * ( 5 - 1 ) = 4
 
@@ -974,9 +1019,11 @@ What about direction and tails?
 NB: Left-tailed chi-square tests are used in statistical forensics to detect if a fit is suspiciously good because the data was fabricated. Chi-square tests of variance can be two-tailed. These are niche uses, though.
 '''
 
+late_shipments = late_shipments[late_shipments['vendor_inco_term'] != 'DDU']
+
 # Proportion of freight_cost_group grouped by vendor_inco_term
 props = late_shipments.groupby('vendor_inco_term')[
-    'freight_cost_group'].value_counts(normalize=True)
+    'freight_cost_groups'].value_counts(normalize=True)
 
 # Convert props to wide format
 wide_props = props.unstack()
@@ -987,7 +1034,7 @@ plt.show()
 
 # Determine if freight_cost_group and vendor_inco_term are independent
 expected, observed, stats = pingouin.chi2_independence(
-    data=late_shipments, x='freight_cost_group', y='vendor_inco_term')
+    data=late_shipments, x='freight_cost_groups', y='vendor_inco_term')
 
 # Print results
 print(stats[stats['test'] == 'pearson'])
@@ -1052,6 +1099,13 @@ Power_divergenceResult( statistic= 44.59840778416629, pvalue=1.1261810719413759e
 
 Therefore, since the p-value returned by the function is much lower than the significance level of 0.01, so we conclude that the sample distribution of proportions is different from the hypothesized distribution.
 '''
+
+hypothesized = pd.DataFrame({'vendor_inco_term': [
+                            'CIP', 'DDP', 'EXW', 'FCA'], 'prop': [0.05, 0.10, 0.75, 0.10]})
+
+incoterm_counts = late_shipments['vendor_inco_term'].value_counts()
+incoterm_counts = incoterm_counts.rename_axis(
+    'vendor_inco_term').reset_index(name='n').sort_values('vendor_inco_term')
 
 # Find the number of rows in late_shipments
 n_total = len(late_shipments)
@@ -1165,7 +1219,7 @@ If the bootstrap distribution doesn't look normal, assumptions likely aren't val
 '''
 
 # Count the freight_cost_group values
-counts = late_shipments['freight_cost_group'].value_counts()
+counts = late_shipments['freight_cost_groups'].value_counts()
 
 # Print the result
 print(counts)
@@ -1186,7 +1240,7 @@ print((counts >= 10).all())
 
 # Count the values of freight_cost_group grouped by vendor_inco_term
 counts = late_shipments.groupby('vendor_inco_term')[
-    'freight_cost_group'].value_counts()
+    'freight_cost_groups'].value_counts()
 
 # Print the result
 print(counts)
@@ -1216,7 +1270,7 @@ Parametric tests
 Smaller Republican votes data
 e.g
 print(repub_votes_small) <- in
-            state     county repub_prercent_08 repub_prercent_12
+            state     county repub_percent_08 repub_percent_12
 80          Texas  Red River         68.507522         69.944817
 84          Texas     Walker         60.707197         64.971903
 33       Kentucky     Powell         57.059533         61.727293
@@ -1229,7 +1283,7 @@ Results with pingouin.ttest()
 e.g
 alpha = 0.01
 import pingouin
-pingouin.ttest(x=repub_votes_small['repub_prercent_08'], y=repub_votes_small['repub_prercent_12'], paired=True, alternative='less') <- in
+pingouin.ttest(x=repub_votes_small['repub_percent_08'], y=repub_votes_small['repub_percent_12'], paired=True, alternative='less') <- in
                 T dof alternative    p-val         CI95%  cohen-d   BF10    power
 T-test  -5.875753   4        less 0.002096 [-inf, -2.11] 0.500068 26.468 0.239034 <- out
 
@@ -1252,9 +1306,9 @@ Wilcoxon-signed rank test
 Wilcoxon-signed rank test (step 1)
 - Works on the ranked absolute differences between the pairs of data
 e.g
-repub_votes_small['diff'] = repub_votes_small['repub_prercent_08'] - repub_votes_small['repub_prercent_12']
+repub_votes_small['diff'] = repub_votes_small['repub_percent_08'] - repub_votes_small['repub_percent_12']
 print(repub_votes_small) <- in
-            state     county repub_prercent_08 repub_prercent_12      diff 
+            state     county repub_percent_08 repub_percent_12      diff 
 80          Texas  Red River         68.507522         69.944817 -1.437295 
 84          Texas     Walker         60.707197         64.971903 -4.264705 
 33       Kentucky     Powell         57.059533         61.727293 -4.667760 
@@ -1266,7 +1320,7 @@ Wilcoxon-signed rank test (step 2)
 e.g
 repub_votes_small['abs_diff'] = repub_votes_small['diff'].abs()
 print(repub_votes_small) <- in
-            state     county repub_prercent_08 repub_prercent_12      diff  abs_diff 
+            state     county repub_percent_08 repub_percent_12      diff  abs_diff 
 80          Texas  Red River         68.507522         69.944817 -1.437295  1.437295 
 84          Texas     Walker         60.707197         64.971903 -4.264705  4.264705 
 33       Kentucky     Powell         57.059533         61.727293 -4.667760  4.667760 
@@ -1279,7 +1333,7 @@ e.g
 from scipy.stats import rankdata
 repub_votes_small['rank_abs_diff'] = rankdata( repub_votes_small['abs_diff'] )
 print(repub_votes_small) <- in
-            state     county repub_prercent_08 repub_prercent_12      diff  abs_diff   rank_abs_diff
+            state     county repub_percent_08 repub_percent_12      diff  abs_diff   rank_abs_diff
 80          Texas  Red River         68.507522         69.944817 -1.437295  1.437295             1.0
 84          Texas     Walker         60.707197         64.971903 -4.264705  4.264705             4.0
 33       Kentucky     Powell         57.059533         61.727293 -4.667760  4.667760             5.0
@@ -1298,7 +1352,7 @@ W = np.min( [T_minus, T_plus] ) <- in
 Implementation with pingouin.wilcoxon()
 e.g
 alpha = 0.01
-pingouin.wilcoxon(x=repub_votes_small['repub_prercent_08'], y=repub_votes_small['repub_prercent_12'], alternative='less') <- in
+pingouin.wilcoxon(x=repub_votes_small['repub_percent_08'], y=repub_votes_small['repub_percent_12'], alternative='less') <- in
             W-val alternative   p-val  RBC CLES
 Wilcoxon      0.0        less 0.03125 -1.0 0.72 <- out
 
@@ -1353,6 +1407,10 @@ Kruskal    job_sat     4 72.814939 5.772915e-15 <- out
 i.e
 Since the P-value is smaller than the significance level, this provides evidence that at least one of the mean compensation totals is different than the others across these 5 job satisfaction groups.
 '''
+
+# Read the Feather file
+late_shipments = pd.read_feather(
+    'Hypothesis Testing in Python\late_shipments.feather')
 
 # Select the weight_kilograms and late columns
 weight_vs_late = late_shipments[['weight_kilograms', 'late']]
