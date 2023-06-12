@@ -1,3 +1,12 @@
+# import necessary packages
+import pytz
+import pandas as pd
+import matplotlib.pyplot as plt
+import datetime as dt
+from datetime import date, datetime, timedelta, timezone
+from dateutil import tz
+
+
 ''' Dates and Calendars '''
 
 '''
@@ -40,7 +49,6 @@ It depends where you are from! In the United States, Canada, and Japan, Sunday i
 '''
 
 # Import date from datetime
-from datetime import date
 
 # Create a date object
 hurricane_andrew = date(1992, 8, 24)
@@ -48,6 +56,9 @@ hurricane_andrew = date(1992, 8, 24)
 # Which day of the week is the date?
 print(hurricane_andrew.weekday())
 
+
+florida_hurricane_dates = pd.read_pickle(
+    'Working with Dates and Times in Python/florida_hurricane_dates.pkl')
 
 # Counter for how many before June 1
 early_hurricanes = 0
@@ -57,7 +68,7 @@ for hurricane in florida_hurricane_dates:
     # Check if the month is before June (month number 6)
     if hurricane.month < 6:
         early_hurricanes = early_hurricanes + 1
-    
+
 print(early_hurricanes)
 
 
@@ -90,7 +101,6 @@ print(d1 + td) -> in
 '''
 
 # Import date
-from datetime import date
 
 # Create a date object for May 9th, 2007
 start = date(2007, 5, 9)
@@ -103,7 +113,8 @@ print((end - start).days)
 
 
 # A dictionary to count hurricanes per calendar month
-hurricanes_each_month = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6:0, 7: 0, 8:0, 9:0, 10:0, 11:0, 12:0}
+hurricanes_each_month = {1: 0, 2: 0, 3: 0, 4: 0,
+                         5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
 
 # Loop over all hurricanes
 for hurricane in florida_hurricane_dates:
@@ -115,7 +126,7 @@ for hurricane in florida_hurricane_dates:
 print(hurricanes_each_month)
 
 
-# Print the first and last scrambled dates
+'''# Print the first and last scrambled dates
 print(dates_scrambled[0])
 print(dates_scrambled[-1])
 
@@ -124,7 +135,7 @@ dates_ordered = sorted(dates_scrambled)
 
 # Print the first and last ordered dates
 print(dates_ordered[0])
-print(dates_ordered[-1])
+print(dates_ordered[-1])'''
 
 
 '''
@@ -181,7 +192,6 @@ print("US: " + us)
 
 
 # Import date
-from datetime import date
 
 # Create a date object
 andrew = date(1992, 8, 26)
@@ -218,7 +228,6 @@ print(dt_hr) -> in
 '''
 
 # Import datetime
-from datetime import datetime
 
 # Create a datetime object
 dt = datetime(2017, 10, 1, 15, 26, 26)
@@ -247,10 +256,13 @@ print(dt_old)
 # Create dictionary to hold results
 trip_counts = {'AM': 0, 'PM': 0}
 
+onebike_datetimes = pd.read_csv(
+    'Working with Dates and Times in Python\capital-onebike.csv', parse_dates=['Start date', 'End date'])
+
 # Loop over all trips
-for trip in onebike_datetimes:
+for trip in onebike_datetimes['Start date']:
     # Check to see if the trip starts before noon
-    if trip['start'].hour < 12:
+    if trip.hour < 12:
         # Increment the counter for before noon
         trip_counts['AM'] += 1
     else:
@@ -307,7 +319,6 @@ print(datetime.fromtimestamp(ts)) -> in
 '''
 
 # Import the datetime class
-from datetime import datetime
 
 # Starting string, in YYYY-MM-DD HH:MM:SS format
 s = '2017-02-03 00:00:01'
@@ -351,19 +362,24 @@ print(d)
 # Write down the format string
 fmt = "%Y-%m-%d %H:%M:%S"
 
+onebike_datetime_strings = pd.read_csv(
+    'Working with Dates and Times in Python\capital-onebike.csv')
+onebike_datetime_strings = onebike_datetime_strings[[
+    'Start date', 'End date']].values
+
 # Initialize a list for holding the pairs of datetime objects
 onebike_datetimes = []
 
 # Loop over all trips
 for (start, end) in onebike_datetime_strings:
-    trip = {'start': datetime.strptime(start, fmt), 'end': datetime.strptime(end, fmt)}
+    trip = {'start': datetime.strptime(
+        start, fmt), 'end': datetime.strptime(end, fmt)}
 
-# Append the trip
-onebike_datetimes.append(trip)
+    # Append the trip
+    onebike_datetimes.append(trip)
 
 
 # Import datetime
-from datetime import datetime
 
 # Pull out the start of the first trip
 first_start = onebike_datetimes[0]['start']
@@ -377,7 +393,6 @@ print(first_start.strftime(fmt))
 
 
 # Import datetime
-from datetime import datetime
 
 # Starting timestamps
 timestamps = [1514665153, 1514664543]
@@ -406,7 +421,7 @@ duration = end - start
 print(duration.total_seconds()) -> in
 1450.0 -> out
 
-Creating timedeltas
+Creating timedelta
 # Import timedelta
 from datetime import timedelta
 
@@ -416,7 +431,7 @@ delta1 = timedelta(seconds=1)
 print(start) -> in
 2017-10-08 23:46:47 -> out
 
-# One seond later
+# One second later
 print( start + delta1) -> in
 
 2017-10-08 23:46:48 -> out
@@ -432,7 +447,7 @@ print(start + delta2) -> in
 
 2017-10-09 23:46: 48 -> out
 
-Negative timedeltas
+Negative timedelta
 # Create a negative timedelta of one week
 delta3 = timedelta(weeks = -1)
 
@@ -525,7 +540,6 @@ print(dt.astimezone(timezone.utc)) -> in
 '''
 
 # Import datetime, timezone
-from datetime import datetime, timezone
 
 # October 1, 2017 at 15:26:26, UTC
 dt = datetime(2017, 10, 1, 15, 26, 26, tzinfo=timezone.utc)
@@ -535,10 +549,9 @@ print(dt.isoformat())
 
 
 # Import datetime, timedelta, timezone
-from datetime import datetime, timedelta, timezone
 
 # Create a timezone for Pacific Standard Time, or UTC-8
-pst = timezone(timedelta(hours= -8))
+pst = timezone(timedelta(hours=-8))
 
 # October 1, 2017 at 15:26:26, UTC-8
 dt = datetime(2017, 10, 1, 15, 26, 26, tzinfo=pst)
@@ -548,10 +561,9 @@ print(dt.isoformat())
 
 
 # Import datetime, timedelta, timezone
-from datetime import datetime, timedelta, timezone
 
 # Create a timezone for Australian Eastern Daylight Time, or UTC+11
-aedt = timezone(timedelta(hours= 11))
+aedt = timezone(timedelta(hours=11))
 
 # October 1, 2017 at 15:26:26, UTC+11
 dt = datetime(2017, 10, 1, 15, 26, 26, tzinfo=aedt)
@@ -561,7 +573,7 @@ print(dt.isoformat())
 
 
 # Create a timezone object corresponding to UTC-4
-edt = timezone(timedelta(hours= -4))
+edt = timezone(timedelta(hours=-4))
 
 # Loop over trips, updating the start and end datetimes to be in UTC-4
 for trip in onebike_datetimes[:10]:
@@ -574,11 +586,12 @@ for trip in onebike_datetimes[:10]:
 for trip in onebike_datetimes[:10]:
     # Pull out the start
     dt = trip['start']
+
     # Move dt to be in UTC
     dt = dt.astimezone(timezone.utc)
 
-# Print the start time in UTC
-print('Original:', trip['start'], '| UTC:', dt.isoformat())
+    # Print the start time in UTC
+    print('Original:', trip['start'], '| UTC:', dt.isoformat())
 
 
 '''
@@ -590,6 +603,7 @@ Time zone database
 * 'Europe/London'
 * 'Africa/Accra'
 e.g
+
 # Imports
 from datetime import datetime
 from dateutil import tz
@@ -611,7 +625,6 @@ print(first) -> in
 '''
 
 # Import tz
-from dateutil import tz
 
 # Create a timezone object for Eastern Time
 et = tz.gettz('America/New_York')
@@ -619,8 +632,8 @@ et = tz.gettz('America/New_York')
 # Loop over trips, updating the datetimes to be in Eastern Time
 for trip in onebike_datetimes[:10]:
     # Update trip['start'] and trip['end']
-    trip['start'] = trip['start'].replace(tzinfo = et)
-    trip['end'] = trip['end'].replace(tzinfo = et)
+    trip['start'] = trip['start'].replace(tzinfo=et)
+    trip['end'] = trip['end'].replace(tzinfo=et)
 
 
 # Create the timezone object
@@ -719,11 +732,9 @@ spring_ahead_3am = datetime(2017, 3, 12, 3, 0, 0, tzinfo = eastern)
 '''
 
 # Import datetime, timedelta, tz, timezone
-from datetime import datetime, timedelta, timezone
-from dateutil import tz
 
 # Start on March 12, 2017, midnight, then add 6 hours
-start = datetime(2017, 3, 12, tzinfo = tz.gettz('America/New_York'))
+start = datetime(2017, 3, 12, tzinfo=tz.gettz('America/New_York'))
 end = start + timedelta(hours=6)
 print(start.isoformat() + " to " + end.isoformat())
 
@@ -731,15 +742,14 @@ print(start.isoformat() + " to " + end.isoformat())
 print((end - start).total_seconds()/(60*60))
 
 # What if we move to UTC?
-print((end.astimezone(timezone.utc) - start.astimezone(timezone.utc)).total_seconds()/(60*60))
+print((end.astimezone(timezone.utc) -
+      start.astimezone(timezone.utc)).total_seconds()/(60*60))
 
 
 # Import datetime and tz
-from datetime import datetime
-from dateutil import tz
 
 # Create starting date
-dt = datetime(2000, 3, 29, tzinfo = tz.gettz('Europe/London'))
+dt = datetime(2000, 3, 29, tzinfo=tz.gettz('Europe/London'))
 
 # Loop over the dates, replacing the year, and print the ISO timestamp
 for y in range(2000, 2011):
@@ -771,6 +781,15 @@ second_1am = second_1am.astimezone(tz.UTC)
 3600.0 -> out
 '''
 
+# Create a timezone object for Eastern Time
+et = tz.gettz('America/New_York')
+
+# Loop over trips, updating the datetimes to be in Eastern Time
+for trip in onebike_datetimes:
+    # Update trip['start'] and trip['end']
+    trip['start'] = trip['start'].replace(tzinfo=et)
+    trip['end'] = trip['end'].replace(tzinfo=et)
+
 # Loop over trips
 for trip in onebike_datetimes:
     # Rides with ambiguous start
@@ -780,8 +799,8 @@ for trip in onebike_datetimes:
     if tz.datetime_ambiguous(trip['end']):
         print("Ambiguous end at " + str(trip['end']))
 
-
 trip_durations = []
+
 for trip in onebike_datetimes:
     # When the start is later than the end, set the fold to be 1
     if trip['start'] > trip['end']:
@@ -864,10 +883,10 @@ Name: Duration, dtype: float64 -> out
 '''
 
 # Import pandas
-import pandas as pd
 
 # Load CSV into the rides variable
-rides = pd.read_csv('capital-onebike.csv', parse_dates = ['Start date', 'End date'])
+rides = pd.read_csv('Working with Dates and Times in Python\capital-onebike.csv',
+                    parse_dates=['Start date', 'End date'])
 
 # Print the initial (0th) row
 print(rides.iloc[0])
@@ -913,7 +932,8 @@ Casual 0.186
 Name: Member type, dtype: float64 -> out
 
 # Add duration (in seconds) column
-rides['Duration seconds'] =  rides['Duration'].dt.yotal_seconds()
+rides['Duration seconds'] =  rides['Duration'].dt.total_seconds()
+
 # Average duration per member type
 rides.groupby('Member type')['Duration seconds'].mean() -> in
 
@@ -923,7 +943,7 @@ Member 992.280
 Name: Duration seconds, dtype: float64 -> out
 
 # Average duration by month
-rides.resample('M', on = 'Start date')['Duration seconds'].meqan() -> in
+rides.resample('M', on = 'Start date')['Duration seconds'].mean() -> in
 
 Start date
 2017-10-31 1886.454
@@ -949,14 +969,14 @@ Member          00:03:01 ...
 
 Plotting
 rides\
-    .resamle('M', on = 'Start date')\
+    .resample('M', on = 'Start date')\
         ['Duration seconds']\
             .mean()\
                 .plot()
 
 # Change the plot resampling from month to days
 rides\
-    .resamle('D', on = 'Start date')\
+    .resample('D', on = 'Start date')\
         ['Duration seconds']\
             .mean()\
                 .plot()
@@ -969,40 +989,38 @@ joyrides = (rides['Start station'] == rides['End station'])
 print("{} rides were joyrides".format(joyrides.sum()))
 
 # Median of all rides
-print("The median duration overall was {:.2f} seconds"\
-    .format(rides['Duration'].median()))
+print("The median duration overall was {:.2f} seconds"
+      .format(rides['Duration'].median()))
 
 # Median of joyrides
-print("The median duration for joyrides was {:.2f} seconds"\
-    .format(rides[joyrides]['Duration'].median()))
+print("The median duration for joyrides was {:.2f} seconds"
+      .format(rides[joyrides]['Duration'].median()))
 
 
 # Import matplotlib
-import matplotlib.pyplot as plt
 
 # Resample rides to daily, take the size, plot the results
-rides.resample('D', on = 'Start date')\
+rides.resample('D', on='Start date')\
     .size()\
-    .plot(ylim = [0, 15])
+    .plot(ylim=[0, 15])
 
 # Show the results
 plt.show()
 
 
 # Import matplotlib
-import matplotlib.pyplot as plt
 
 # Resample rides to monthly, take the size, plot the results
-rides.resample('M', on = 'Start date')\
+rides.resample('M', on='Start date')\
     .size()\
-    .plot(ylim = [0, 150])
+    .plot(ylim=[0, 150])
 
 # Show the results
 plt.show()
 
 
 # Resample rides to be monthly on the basis of Start date
-monthly_rides = rides.resample('M', on = 'Start date')['Member type']
+monthly_rides = rides.resample('M', on='Start date')['Member type']
 
 # Take the ratio of the .value_counts() over the total number of rides
 print(monthly_rides.value_counts() / monthly_rides.size())
@@ -1010,7 +1028,7 @@ print(monthly_rides.value_counts() / monthly_rides.size())
 
 # Group rides by member type, and resample to the month
 grouped = rides.groupby('Member type')\
-    .resample('M', on = 'Start date')
+    .resample('M', on='Start date')
 
 # Print the median duration for each group
 print(grouped['Duration'].median())
@@ -1066,7 +1084,7 @@ Bike number            W20529
 Member type            Member
 Name: 129, dtype: object -> out
 
-Othe datetime operations in Pandas
+Other datetime operations in Pandas
 # Year of first three rows
 rides['start date']\.head(3)\.dt.year -> in
 
@@ -1093,7 +1111,8 @@ Name: End date, dtype: datetime64[ns, America/New-York] -> out
 '''
 
 # Localize the Start date column to America/New_York
-rides['Start date'] = rides['Start date'].dt.tz_localize('America/New_York', ambiguous='NaT')
+rides['Start date'] = rides['Start date'].dt.tz_localize(
+    'America/New_York', ambiguous='NaT')
 
 # Print first value
 print(rides['Start date'].iloc[0])
@@ -1112,14 +1131,18 @@ rides['Ride start weekday'] = rides['Start date'].dt.day_name()
 print(rides.groupby('Ride start weekday')['Duration'].median())
 
 
-# Shift the index of the end date up one; now subract it from the start date
+# Load CSV into the rides variable
+rides = pd.read_csv('Working with Dates and Times in Python\capital-onebike.csv',
+                    parse_dates=['Start date', 'End date'])
+
+# Shift the index of the end date up one; now subtract it from the start date
 rides['Time since'] = rides['Start date'] - (rides['End date'].shift(1))
 
 # Move from a timedelta to a number of seconds, which is easier to work with
 rides['Time since'] = rides['Time since'].dt.total_seconds()
 
 # Resample to the month
-monthly = rides.resample('M', on = 'Start date')
+monthly = rides.resample('M', on='Start date')
 
 # Print the average hours between rides each month
 print(monthly['Time since'].mean()/(60*60))
