@@ -1,3 +1,8 @@
+# import necessary packages
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
 ''' Preparing the data for analysis '''
 
 '''
@@ -80,10 +85,9 @@ ri.dropna(subset=['stop_date', 'stop_time'], inplace=True)
 '''
 
 # Import the pandas library as pd
-import pandas as pd
 
 # Read 'police.csv' into a DataFrame named ri
-ri = pd.read_csv('police.csv')
+ri = pd.read_csv('Analyzing Police Activity with pandas\police.csv')
 
 # Examine the head of the DataFrame
 print(ri.head())
@@ -170,7 +174,7 @@ print(ri.is_arrested.head())
 # Change the data type of 'is_arrested' to 'bool'
 ri['is_arrested'] = ri.is_arrested.astype('bool')
 
-# Check the data type of 'is_arrested' 
+# Check the data type of 'is_arrested'
 print(ri.is_arrested.dtype)
 
 
@@ -251,7 +255,7 @@ DatetimeIndex(['2018-02-13 16:00:00', '2018-02-14 16:00:00', '2018-02-15 16:00:0
 '''
 
 # Concatenate 'stop_date' and 'stop_time' (separated by a space)
-combined = ri.stop_date.str.cat(ri.stop_time, sep= ' ')
+combined = ri.stop_date.str.cat(ri.stop_time, sep=' ')
 
 # Convert 'combined' to datetime format
 ri['stop_datetime'] = pd.to_datetime(combined)
@@ -275,7 +279,7 @@ print(ri.columns)
 '''
 Do the genders commit different violations?
 Counting unique value (1)
-- .value_counts(): Couts the unique values in a Series
+- .value_counts(): Counts the unique values in a Series
 - Best suited for categorical data
 
 ri.stop_outcome.value_counts() -> in
@@ -396,7 +400,7 @@ female_or_arrested.shape -> in
 * Includes all drivers who were arrested 
 
 Rules for filtering by multiple conditions
-- Ampersand ( & ): only include rows that satisfyboth conditions
+- Ampersand ( & ): only include rows that satisfy both conditions
 - Pipe ( | ): include rows that satisfy either condition
 - Each condition must be surrounded by parentheses
 - Conditions can check for equality ( == ), inequality ( != ), etc
@@ -412,16 +416,18 @@ Correlation, not causation
 '''
 
 # Create a DataFrame of female drivers stopped for speeding
-female_and_speeding = ri[(ri.driver_gender == 'F') & (ri.violation == 'Speeding')]
+female_and_speeding = ri[(ri.driver_gender == 'F') &
+                         (ri.violation == 'Speeding')]
 
 # Create a DataFrame of male drivers stopped for speeding
-male_and_speeding = ri[(ri.driver_gender == 'M') & (ri.violation == 'Speeding')]
+male_and_speeding = ri[(ri.driver_gender == 'M') &
+                       (ri.violation == 'Speeding')]
 
 # Compute the stop outcomes for female drivers (as proportions)
-print(female_and_speeding.stop_outcome.value_counts(normalize = True))
+print(female_and_speeding.stop_outcome.value_counts(normalize=True))
 
 # Compute the stop outcomes for male drivers (as proportions)
-print(male_and_speeding.stop_outcome.value_counts(normalize = True))
+print(male_and_speeding.stop_outcome.value_counts(normalize=True))
 
 
 '''
@@ -510,7 +516,7 @@ F               Zone K1 0.019169
 print(ri.search_conducted.dtype)
 
 # Calculate the search rate by counting the values
-print(ri.search_conducted.value_counts(normalize = True))
+print(ri.search_conducted.value_counts(normalize=True))
 
 # Calculate the search rate by taking the mean
 print(ri.search_conducted.mean())
@@ -707,7 +713,6 @@ hourly_arrest_rate = ri.groupby(ri.index.hour).is_arrested.mean()
 
 
 # Import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 
 # Create a line plot of 'hourly_arrest_rate'
 hourly_arrest_rate.plot()
@@ -795,7 +800,7 @@ annual_search_rate = ri.search_conducted.resample('A').mean()
 annual = pd.concat([annual_drug_rate, annual_search_rate], axis='columns')
 
 # Create subplots from 'annual'
-annual.plot(subplots = True)
+annual.plot(subplots=True)
 
 # Display the subplots
 plt.show()
@@ -847,21 +852,21 @@ print(pd.crosstab(ri.district, ri.violation))
 all_zones = pd.crosstab(ri.district, ri.violation)
 
 # Select rows 'Zone K1' through 'Zone K3'
-print(all_zones.loc['Zone K1' : 'Zone K3'])
+print(all_zones.loc['Zone K1': 'Zone K3'])
 
 # Save the smaller table as 'k_zones'
-k_zones = all_zones.loc['Zone K1' : 'Zone K3']
+k_zones = all_zones.loc['Zone K1': 'Zone K3']
 
 
 # Create a bar plot of 'k_zones'
-k_zones.plot(kind = 'bar')
+k_zones.plot(kind='bar')
 
 # Display the plot
 plt.show()
 
 
 # Create a stacked bar plot of 'k_zones'
-k_zones.plot(kind = 'bar', stacked = True)
+k_zones.plot(kind='bar', stacked=True)
 
 # Display the plot
 plt.show()
@@ -945,7 +950,7 @@ plt.show()
 print(ri.stop_duration.unique())
 
 # Create a dictionary that maps strings to integers
-mapping = {'0-15 Min':8, '16-30 Min':23, '30+ Min':45}
+mapping = {'0-15 Min': 8, '16-30 Min': 23, '30+ Min': 45}
 
 # Convert the 'stop_duration' strings to integers using the 'mapping'
 ri['stop_minutes'] = ri.stop_duration.map(mapping)
@@ -964,7 +969,7 @@ stop_length = ri.groupby('violation_raw').stop_minutes.mean()
 stop_length.sort_values()
 
 # Display the plot
-stop_length.sort_values().plot(kind = 'barh')
+stop_length.sort_values().plot(kind='barh')
 plt.show()
 
 
@@ -1028,7 +1033,7 @@ plt.show()
 '''
 
 # Read 'weather.csv' into a DataFrame named 'weather'
-weather = pd.read_csv('weather.csv')
+weather = pd.read_csv('Analyzing Police Activity with pandas\weather.csv')
 
 # Describe the temperature columns
 print(weather[['TMIN', 'TAVG', 'TMAX']].describe())
@@ -1131,7 +1136,7 @@ ri.stop_length.memory_usage(deep = True) -> in
 
 779118 -> out
 
-Using oredered categories (1)
+Using ordered categories (1)
 ri.stop_length.head() -> in
 
 stop_datetime
@@ -1158,16 +1163,16 @@ Name: is_arrested, dtype: float64 -> out
 '''
 
 # Copy 'WT01' through 'WT22' to a new DataFrame
-WT = weather.loc[: , 'WT01':'WT22']
+WT = weather.loc[:, 'WT01':'WT22']
 
 # Calculate the sum of each row in 'WT'
-weather['bad_conditions'] = WT.sum(axis = 'columns')
+weather['bad_conditions'] = WT.sum(axis='columns')
 
 # Replace missing values in 'bad_conditions' with '0'
 weather['bad_conditions'] = weather.bad_conditions.fillna(0).astype('int')
 
 # Create a histogram to visualize 'bad_conditions'
-weather.bad_conditions.plot(kind = 'hist')
+weather.bad_conditions.plot(kind='hist')
 
 # Display the plot
 plt.show()
@@ -1177,7 +1182,8 @@ plt.show()
 print(weather.bad_conditions.value_counts().sort_index())
 
 # Create a dictionary that maps integers to strings
-mapping = {0:'good', 1:'bad', 2:'bad', 3:'bad', 4:'bad', 5:'worse', 6:'worse', 7:'worse', 8:'worse', 9:'worse'}
+mapping = {0: 'good', 1: 'bad', 2: 'bad', 3: 'bad', 4: 'bad',
+           5: 'worse', 6: 'worse', 7: 'worse', 8: 'worse', 9: 'worse'}
 
 # Convert the 'bad_conditions' integers to strings using the 'mapping'
 weather['rating'] = weather.bad_conditions.map(mapping)
@@ -1250,7 +1256,7 @@ apple_high -> in
 3 2018-02-15 16:00:00    2/15/18   16:00   172.99   2/15/18  173.09 -> out
 
 Setting the index 
-apple_high.set_index('date_and_time', inplace = Ture)
+apple_high.set_index('date_and_time', inplace = True)
 apple_high -> in
 
                             date     time     price     DATE       HIGH
@@ -1262,7 +1268,7 @@ date_and_time
 '''
 
 # Reset the index of 'ri'
-ri.reset_index(inplace = True)
+ri.reset_index(inplace=True)
 
 # Examine the head of 'ri'
 print(ri.head())
@@ -1278,7 +1284,8 @@ print(weather_rating.head())
 print(ri.shape)
 
 # Merge 'ri' and 'weather_rating' using a left join
-ri_weather = pd.merge(left=ri, right=weather_rating, left_on='stop_date', right_on='DATE', how='left')
+ri_weather = pd.merge(left=ri, right=weather_rating,
+                      left_on='stop_date', right_on='DATE', how='left')
 
 # Examine the shape of 'ri_weather'
 print(ri_weather.shape)
@@ -1387,4 +1394,5 @@ print(arrest_rate.loc['Speeding'])
 print(arrest_rate.unstack())
 
 # Create the same DataFrame using a pivot table
-print(ri_weather.pivot_table(index='violation', columns='rating', values='is_arrested'))
+print(ri_weather.pivot_table(index='violation',
+      columns='rating', values='is_arrested'))
