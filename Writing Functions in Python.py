@@ -1,3 +1,8 @@
+# import necessary packages
+import inspect
+import pandas
+
+
 ''' Best Practices '''
 
 '''
@@ -62,7 +67,7 @@ def function(arg_1, arg_2=42):
         arg_2 (int, optional): Write optional when an argument has a default value.
     
     Returns:
-        bool: Optional decription of the return value
+        bool: Optional description of the return value
         Extra lines are not indented
 
     Raises:
@@ -657,7 +662,7 @@ def copy(src, dst):
         src (str): File name of the file to be copied.
         dst (str): Where to write the new file.
     """
-    # Open the cource file and read in the contents
+    # Open the source file and read in the contents
     with open(src) as f_src:
         contents = f_src.read()
 
