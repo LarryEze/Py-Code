@@ -1,3 +1,15 @@
+# import necessary packages
+import seaborn as sns
+import re
+from urllib.request import urlretrieve, urlopen, Request
+import matplotlib.pyplot as plt
+import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+import tweepy
+import json
+
+
 """ Importing data from the Internet """
 
 """
@@ -19,14 +31,7 @@ urlretrieve( url, 'winequality-white.csv' )
 
 # Import package
 
-# Import pandas
-
 # Assign url of file: url
-import seaborn as sns
-import re
-from urllib.request import urlopen, Request
-import matplotlib.pyplot as plt
-import pandas as pd
 url = "https://assets.datacamp.com/production/course_1606/datasets/winequality-red.csv"
 
 # Save file locally
@@ -73,7 +78,7 @@ print(xls["1700"].head())
 """
 HTTP requests to import files from the web
 URL
-- It stands for Unifrom / Universal Resource Locator
+- It stands for Uniform / Universal Resource Locator
 - They are references to web resources
 - Focus: web addresses
 - web addresses URL consists of 2 parts:
@@ -83,7 +88,7 @@ URL
 
 HTTP
 - It stands for HyperText Transfer Protocol
-- HTTP is an application protocol for distributed, collaborative, hypermedia informattion systems (- wikipedia)
+- HTTP is an application protocol for distributed, collaborative, hypermedia information systems (- wikipedia)
 - HTTP is the foundation of data communication for th World Wide Web
 - HTTPS - more secure form of HTTP
 - Going to a website = sending HTTP request
@@ -96,7 +101,7 @@ from urllib.requests import urlopen, Request        # import the necessary funct
 url = 'https://www.wikipedia.org/'                  # specify the URL
 request = Request( url )                            # package the GET request
 response = urlopen( request )                       # send the request and catch the response
-html = reponse.read() 
+html = response.read() 
 
 GET requests using requests
 Requests package allows you to send organic, grass-fed HTTP/1.1 requests, without the need for manual labour
@@ -166,7 +171,7 @@ print(text)
 """
 Scraping the web in Python
 HTML 
-- It's a micture of unstructured and structured data
+- It's a mixture of unstructured and structured data
 - Structured data:
 * Has pre-defined data model, or
 * Organized in a defined manner
@@ -174,7 +179,7 @@ HTML
 
 BeautifulSoup
 - It parse and extract structured data from HTML
-- In web development, the term 'tag soup' reders to structurally or syntacticallyincorrect HTML code written for a web page.
+- In web development, the term 'tag soup' refers to structurally or syntacticallyincorrect HTML code written for a web page.
 - Therefore, Beautiful Soup makes tag soup beautiful again and to extract information from it with ease
 e.g
 from bs4 import BeautifulSoup
@@ -418,7 +423,7 @@ stream.filter(track=["clinton", "trump", "sanders", "cruz"])
 # Import package
 
 # String of path to file: tweets_data_path
-tweets_data_path = "tweets.txt"
+tweets_data_path = "Intermediate Importing Data in Python/tweets.txt"
 
 # Initialize empty list to store tweets: tweets_data
 tweets_data = []
@@ -478,6 +483,6 @@ sns.set(color_codes=True)
 cd = ["clinton", "trump", "sanders", "cruz"]
 
 # Plot the bar chart
-ax = sns.barplot(cd, [clinton, trump, sanders, cruz])
+ax = sns.barplot(x=cd, y=[clinton, trump, sanders, cruz])
 ax.set(ylabel="count")
 plt.show()
