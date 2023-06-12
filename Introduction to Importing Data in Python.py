@@ -1,3 +1,14 @@
+# import necessary packages
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pickle
+from sas7bdat import SAS7BDAT
+import h5py
+import scipy.io
+from sqlalchemy import create_engine, inspect
+
+
 """ Introduction and flat files """
 
 """
@@ -28,8 +39,7 @@ with open('huck_finn.txt', 'r') as file:
 """
 
 # Open a file: file
-import matplotlib.pyplot as plt
-file = open("moby_dick.txt", mode="r")
+file = open("Introduction to Importing Data in Python\moby_dick.txt", mode="r")
 
 # Print it
 print(file.read())
@@ -45,7 +55,7 @@ print(file.closed)
 
 
 # Read & print the first 3 lines
-with open("moby_dick.txt") as file:
+with open("Introduction to Importing Data in Python\moby_dick.txt") as file:
     print(file.readline())  # print only the first few lines
     print(file.readline())
     print(file.readline())
@@ -61,7 +71,7 @@ Flat files
 - i.e they are Table data, without structured relationships.
 
 Header
-Flat files may have a header which is a row that occurs as the first row and decribes the contents of the data columns or states what the corresponding attributes or features in each column are.
+Flat files may have a header which is a row that occurs as the first row and describes the contents of the data columns or states what the corresponding attributes or features in each column are.
 
 File extension
 - .csv - Comma Separated Values
@@ -103,6 +113,7 @@ Importing flat files using NumPy
 Why NumPy?
 - NumPy arrays are Python standards for storing numerical data.
 - They are often essential for other packages: e.g. scikit-learn
+
 - Numpy functions to import data as arrays
 * loadtxt() - Best used for basic cases
 * genfromtxt() - Best used when there are mixed datatypes
@@ -126,7 +137,7 @@ NB: The default delimiter is whitespace ( ' ' )
 # Import package
 
 # Assign filename to variable: file
-file = "digits.csv"
+file = "Introduction to Importing Data in Python\mnist_kaggle_some_rows.csv"
 
 # Load file as array: digits
 digits = np.loadtxt(file, delimiter=",")
@@ -146,7 +157,7 @@ plt.show()
 # Import numpy
 
 # Assign the filename: file
-file = "digits_header.txt"
+file = "Introduction to Importing Data in Python\digits_header.txt"
 
 # Load the data: data
 data = np.loadtxt(file, delimiter="\t", skiprows=1, usecols=[0, 2])
@@ -156,7 +167,7 @@ print(data)
 
 
 # Assign filename: file
-file = "seaslug.txt"
+file = "Introduction to Importing Data in Python\seaslug.txt"
 
 # Import file: data
 data = np.loadtxt(file, delimiter="\t", dtype=str)
@@ -178,14 +189,15 @@ plt.show()
 
 
 # Import file: data
-data = np.genfromtxt("titanic.csv", delimiter=",", names=True, dtype=None)
+data = np.genfromtxt("Introduction to Importing Data in Python/titanic_sub.csv",
+                     delimiter=",", names=True, dtype=None)
 
 # Subsetting data
 data["Survived"]
 
 
 # Assign the filename: file
-file = "titanic.csv"
+file = "Introduction to Importing Data in Python/titanic_sub.csv"
 
 # Import file using np.recfromcsv: d
 d = np.recfromcsv(file)
@@ -232,7 +244,7 @@ data_array = data.values    # to convert the dataframe to a numpy array
 # Import pandas as pd
 
 # Assign the filename: file
-file = "titanic.csv"
+file = "Introduction to Importing Data in Python/titanic_sub.csv"
 
 # Read the file into a DataFrame: df
 df = pd.read_csv(file)
@@ -242,7 +254,7 @@ print(df.head())
 
 
 # Assign the filename: file
-file = "digits.csv"
+file = "Introduction to Importing Data in Python\mnist_kaggle_some_rows.csv"
 
 # Read the first 5 rows of the file into a DataFrame: data
 data = pd.read_csv(file, nrows=5, header=None)
@@ -333,7 +345,7 @@ print(type(d))
 # Import pandas
 
 # Assign spreadsheet filename: file
-file = "battledeath.xlsx"
+file = "Introduction to Importing Data in Python/battledeath.xlsx"
 
 # Load spreadsheet: xls
 xls = pd.ExcelFile(file)
@@ -372,7 +384,7 @@ SAS and Stata files
 - SAS: Statistical Analysis System
 - Stata: 'Statistics' + 'data'
 - SAS: Used in Business analytics and Biostatistics
-- Stata: Used in Academic social sciences research such as Economincs and Epidemiology
+- Stata: Used in Academic social sciences research such as Economics and Epidemiology
 
 SAS files
 - Used for:
@@ -389,6 +401,7 @@ SAS files
 Importing SAS files
 import pandas as pd
 from sas7bdat import SAS7BDAT
+
 with SAS7BDAT( 'urbanpop.sas7bdat' )as file:
     df_sas = file.to_data_frame()
 
@@ -400,7 +413,7 @@ data = pd.read_stata('urbanpop.dta')
 # Import sas7bdat package
 
 # Save file to a DataFrame: df_sas
-with SAS7BDAT("sales.sas7bdat") as file:
+with SAS7BDAT("Introduction to Importing Data in Python\sales.sas7bdat") as file:
     df_sas = file.to_data_frame()
 
 # Print head of DataFrame
@@ -415,7 +428,7 @@ plt.show()
 # Import pandas
 
 # Load Stata file into a pandas DataFrame: df
-df = pd.read_stata("disarea.dta")
+df = pd.read_stata("Introduction to Importing Data in Python\disarea.dta")
 
 # Print the head of the DataFrame df
 print(df.head())
@@ -470,7 +483,7 @@ b'Strain data time series from LIGO'  b'H1'                                     
 # Import packages
 
 # Assign filename: file
-file = "LIGO_data.hdf5"
+file = "Introduction to Importing Data in Python\L-L1_LOSC_4_V1-1126259446-32.hdf5"
 
 # Load file: data
 data = h5py.File(file, "r")
@@ -528,13 +541,13 @@ print( type(mat) )      <- in
 e.g
 print( type(mat['x']) )     <- in
 <class 'numpy.ndarray'>     <- out
-i.e mat['x'] is a numpy corresponding to the MATLAB arry x in your MATLAB workspace
+i.e mat['x'] is a numpy corresponding to the MATLAB array x in your MATLAB workspace
 """
 
 # Import package
 
 # Load MATLAB file: mat
-mat = scipy.io.loadmat("albeck_gene_expression.mat")
+mat = scipy.io.loadmat("Introduction to Importing Data in Python\ja_data2.mat")
 
 # Print the datatype type of mat
 print(type(mat))
@@ -587,7 +600,7 @@ examples include
 - MySQL
 - SQLite
 * SQL = Structured Query Language
-* SQL describes how you communicate with a datbase in order to both access and update the infromation it contains
+* SQL describes how you communicate with a database in order to both access and update the information it contains
 * Querying is just a fancy way of saying, getting data out from the database
 """
 
@@ -622,10 +635,12 @@ engine = create_engine("sqlite:///Chinook.sqlite")
 # Import necessary module
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Save the table names to a list: table_names
-table_names = engine.table_names()
+inspector = inspect(engine)
+table_names = inspector.get_table_names()
 
 # Print the table names to the shell
 print(table_names)
@@ -647,7 +662,7 @@ Workflow of SQL querying
 - Connect to the engine
 - Query the database
 - Save query results to a DataFrame
-- Close the conection
+- Close the connection
 
 Your first SQL query
 from sqlalchemy import create_engine # import packages and functions
@@ -655,8 +670,8 @@ import pandas as pd # import packages and functions
 engine = create_engine('sqlite:///Northwind.sqlite')        # Create the engine
 
 con =  engine.connect()                                     # Connect to the engine
-rs = con.execute( 'SELECT * FROM Ordes' )                   # Query the database
-df = pd.DataFrame( rs.fetchall() )                          # Save query results to a DataFrame ( .fechall() fetches all rows )
+rs = con.execute( 'SELECT * FROM Orders' )                  # Query the database
+df = pd.DataFrame( rs.fetchall() )                          # Save query results to a DataFrame ( .fetchall() fetches all rows )
 df.columns = rs.keys()                                      # To retain the column names
 
 con.close()                                                 # close the connection
@@ -668,7 +683,7 @@ import pandas as pd
 engine = create_engine('sqlite:///Northwind.sqlite')
 
 with engine.connect() as con:
-    rs = con.execute( 'SELECT OrderID, OrderDate, ShipName FROM Orders' )   # import only the selected columns fromthe table
+    rs = con.execute( 'SELECT OrderID, OrderDate, ShipName FROM Orders' )   # import only the selected columns from the table
     df = pd.DataFrame( rs.fetchmany(size=5) )                               # to import 5 rows 
     df.columns = rs.keys()
 """
@@ -676,7 +691,8 @@ with engine.connect() as con:
 # Import packages
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Open engine connection: con
 con = engine.connect()
@@ -709,7 +725,8 @@ print(df.head())
 
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Open engine in context manager
 # Perform query and save results to DataFrame: df
@@ -723,7 +740,8 @@ print(df.head())
 
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Open engine in context manager
 with engine.connect() as con:
@@ -757,7 +775,8 @@ df = pd.read_sql_query( 'SELECT * FROM Orders', engine )
 # Import packages
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Execute query and store records in DataFrame: df
 df = pd.read_sql_query("SELECT * FROM Album", engine)
@@ -779,7 +798,8 @@ print(df.equals(df1))
 # Import packages
 
 # Create engine: engine
-engine = create_engine("sqlite:///Chinook.sqlite")
+engine = create_engine(
+    "sqlite:///Introduction to Importing Data in Python\Chinook.sqlite")
 
 # Execute query and store records in DataFrame: df
 df = pd.read_sql_query(
