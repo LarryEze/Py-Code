@@ -1,3 +1,14 @@
+# import necessary packages
+from statsmodels.formula.api import ols, logit
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from itertools import product
+from scipy.optimize import minimize
+from scipy.stats import logistic
+
+
 ''' Parallel Slopes '''
 
 '''
@@ -82,13 +93,16 @@ ic_bream, ic_perch, ic_pike, ic_roach, sl = coeffs
 
 sns.scatterplot(x='length_cm', y='mass_g', hue='species', data=fish)
 
-plt.axline(xy1=(0, ic_bream), slope=sl, collor='blue')
-plt.axline(xy1=(0, ic_perch), slope=sl, collor='green')
-plt.axline(xy1=(0, ic_pike), slope=sl, collor='red')
-plt.axline(xy1=(0, ic_roach), slope=sl, collor='orange')
+plt.axline(xy1=(0, ic_bream), slope=sl, color='blue')
+plt.axline(xy1=(0, ic_perch), slope=sl, color='green')
+plt.axline(xy1=(0, ic_pike), slope=sl, color='red')
+plt.axline(xy1=(0, ic_roach), slope=sl, color='orange')
 
 plt.show()
 '''
+
+taiwan_real_estate = pd.read_csv(
+    'Intermediate Regression with statsmodels in Python/taiwan_real_estate2.csv')
 
 # Import ols from statsmodels.formula.api
 
@@ -226,10 +240,10 @@ prediction_data_both = expl_data_both.assign(mass_g = mdl_mass_vs_both.predict(e
 ... # number of rows: 48 -> out
 
 Visualizing the predictions
-plt.axline(xy1=(0, ic_bream), slope=sl, collor='blue')
-plt.axline(xy1=(0, ic_perch), slope=sl, collor='green')
-plt.axline(xy1=(0, ic_pike), slope=sl, collor='red')
-plt.axline(xy1=(0, ic_roach), slope=sl, collor='orange')
+plt.axline(xy1=(0, ic_bream), slope=sl, color='blue')
+plt.axline(xy1=(0, ic_perch), slope=sl, color='green')
+plt.axline(xy1=(0, ic_pike), slope=sl, color='red')
+plt.axline(xy1=(0, ic_roach), slope=sl, color='orange')
 
 sns.scatterplot(x='length_cm', y='mass_g', hue='species', data=fish)
 
@@ -286,7 +300,7 @@ np.select(conditions, choices)
 Choosing an intercept with np.select()
 conditions = [explanatory_data['species'] == 'Bream', explanatory_data['species'] == 'Perch', explanatory_data['species'] == 'Pike', explanatory_data['species'] == 'Roach']
 
-choices = [ic_bream, ic_perch, ic_pikem ic_roach]
+choices = [ic_bream, ic_perch, ic_pike, ic_roach]
 
 intercept = np.select(conditions, choices)
 
@@ -595,8 +609,8 @@ sns.scatterplot(x='length_cm', y='mass_g', data=prediction_data, hue='species', 
 
 plt.show()
 
-Coefficient of detemination
-mdl_fish = ols('mass_g ~ lengh_cm + species', data=fish).fit()
+Coefficient of determination
+mdl_fish = ols('mass_g ~ length_cm + species', data=fish).fit()
 print(mdl_fish.rsquared_adj) -> in
 
 0.917 -> out
@@ -689,10 +703,13 @@ sns.lmplot(x="n_convenience", y="price_twd_msq", data=taiwan_real_estate,
 
 # Add a scatter plot for prediction_data
 sns.scatterplot(x="n_convenience", y="price_twd_msq",
-                data=prediction_data, hue="house_age_years", ci=None, legend=False)
+                data=prediction_data, hue="house_age_years", legend=False)
 
 plt.show()
 
+
+mdl_all_ages = ols('price_twd_msq ~ n_convenience',
+                   data=taiwan_real_estate).fit()
 
 # Print the coeff. of determination for mdl_all_ages
 print("R-squared for mdl_all_ages: ", mdl_all_ages.rsquared)
@@ -754,7 +771,7 @@ mdl_mass_vs_both = ols('mass_g ~ length_cm * species', data=fish).fit()
 
 print(mdl_mass_vs_both.params) -> in
 
-Intecept                        -1035.3476
+Intercept                       -1035.3476
 species[T.Perch]                  416.1725
 species[T.Pike]                  -505.4767
 species[T.Roach]                  705.9714
@@ -830,7 +847,7 @@ species[Roach]:length_cm       23.3193 -> out
 The prediction flow
 from itertools import product
 
-legth_cm = np.arange(5, 61, 5)
+length_cm = np.arange(5, 61, 5)
 species = fish['species'].unique()
 p = product(length_cm, species) 
 
@@ -889,7 +906,7 @@ intercept = np.select(conditions, ic_choices)
 slope_choices = [slope_bream, slope_perch, slope_pike, slope_roach]
 slope = np.select(conditions, slope_choices)
 
-Manaually calculating the predictions
+Manually calculating the predictions
 prediction_data = explanatory_data.assign(mass_g = intercept + slope * explanatory_data['length_cm'])
 
 print(prediction_data) -> in
@@ -1007,7 +1024,7 @@ print(mdl_by_group.params) -> in
 -0.6266          -1.0105     -0.9940     -0.9908     -0.5364 -> out
 
 Plotting the whole dataset
-sns.regplot(x='x', y='y', data=simpsosn_paradox, ci=None)
+sns.regplot(x='x', y='y', data=simpsons_paradox, ci=None)
 
 Plotting by group
 sns.lmplot(x='x', y='y', data=simpsons_paradox, hue='group', ci=None)
@@ -1032,6 +1049,9 @@ Simpson's paradox in real datasets
 - You may see a zero slope rather than a complete change in direction
 - It may not appear in every group
 '''
+
+auctions = pd.read_csv(
+    'Intermediate Regression with statsmodels in Python/auctions.csv')
 
 # Take a glimpse at the dataset
 print(auctions.info())
@@ -1306,7 +1326,7 @@ print(prediction_data) -> in
 grid = sns.FacetGrid(data=taiwan_real_estate,
                      col='house_age_years', hue='price_twd_msq', palette="plasma")
 
-# Plot the scatterplots with sqrt_dist_to_mrt_m on the x-axis and n_convenience on the y-axis
+# Plot the scatterplot with sqrt_dist_to_mrt_m on the x-axis and n_convenience on the y-axis
 grid.map(sns.scatterplot, 'sqrt_dist_to_mrt_m', 'n_convenience')
 
 # Show the plot (brighter colors mean higher prices)
@@ -1407,7 +1427,7 @@ minimize(fun=calc_quadratic, x0=3) -> in
 fun: 9.75
 hess_inv: array([[0.5]])
 jac: array([0.])
-message: 'Otimization terminated successfully.'
+message: 'Optimization terminated successfully.'
 nfev: 6
 nit: 2
 njev: 3
@@ -1440,6 +1460,9 @@ call minimize() to find coefficients that minimize this function
 minimize(fun=calc_sum_of_squares, x0=0)
 '''
 
+x_actual = taiwan_real_estate['n_convenience']
+y_actual = taiwan_real_estate['price_twd_msq']
+
 # Complete the function
 
 
@@ -1455,6 +1478,9 @@ def calc_sum_of_squares(coeffs):
     # Return sum of squares
     return sum_sq
 
+
+# Test the function with intercept 10 and slope 1
+print(calc_sum_of_squares([10, 1]))
 
 # Call minimize on calc_sum_of_squares
 print(minimize(fun=calc_sum_of_squares, x0=[0, 0]))
@@ -1531,6 +1557,9 @@ sns.scatterplot(..., data=churn, hue='has_churned', ...)
 
 sns.scatterplot(..., data=prediction_data, hue='most_likely_outcome', ...)
 '''
+
+churn = pd.read_csv(
+    'Intermediate Regression with statsmodels in Python\churn.csv')
 
 # Import logit
 
@@ -1685,7 +1714,7 @@ How logistic regression works
 Sum of squares doesn't work
 np.sum((y_pred - y_actual) **2)
 
-y_pred : Predictted response ( is between 0 and 1)
+y_pred : Predicted response ( is between 0 and 1)
 y_actual : Actual response ( is always 0 or 1)
 * There is a better metric than sum of squares.
 
@@ -1702,7 +1731,7 @@ Log-likelihood
 * Computing likelihood involves adding many very small numbers, leading to numerical error
 * Log-likelihood is easier to compute
 
-log_likelihood = np.log(y_pred) * y_acyual + np.log(1 - y_pred) * (1 - y_actual)
+log_likelihood = np.log(y_pred) * y_actual + np.log(1 - y_pred) * (1 - y_actual)
 
 Both equations give the same coefficients answer.
 
@@ -1714,7 +1743,7 @@ Maximizing log-likelihood is the same as minimizing negative log-likelihood
 Logistic regression algorithm
 def calc_neg_log_likelihood(coeffs)
     intercept, slope = coeffs
-    # More caalculation!
+    # More calculation!
 
 from scipy.optimize import minimize
 
