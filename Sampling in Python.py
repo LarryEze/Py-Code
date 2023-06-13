@@ -1,3 +1,12 @@
+# import necessary packages
+import pandas as pd
+import numpy as np
+import random
+import itertools
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+
 ''' Introduction to Sampling '''
 
 '''
@@ -98,6 +107,9 @@ pts_vs_flavor_samp['flavor'].mean() -> in
 7.485000000000001 -> out
 '''
 
+spotify_population = pd.read_feather(
+    'Sampling in Python\spotify_2000_2020.feather')
+
 # Sample 1000 rows from spotify_population
 spotify_sample = spotify_population.sample(n=1000)
 
@@ -177,7 +189,7 @@ coffee_ratings_first10['total_cup_points'].hist(bins = np.arange(59, 93, 2))
 plt.show()
 
 Visualizing selection bias for a random sample
-coffe_sample = coffee_ratings.sample(n = 10)
+coffee_sample = coffee_ratings.sample(n = 10)
 
 coffee_sample['total_cup_points'].hist(bins = np.arange(59, 93, 2))
 plt.show()
@@ -250,7 +262,7 @@ Function            Distribution
 .normal             Normal
 .poisson            Poisson
 .standard_t         t
-.uniform            Unifrom
+.uniform            Uniform
 
 Visualizing random numbers
 randoms = np.random.beta(a=2, b=2, size=5000)
@@ -354,6 +366,8 @@ plt.show()
 
 - Shuffling rows + systematic sampling is the same as simple random sampling 
 '''
+
+attrition_pop = pd.read_feather('Sampling in Python/attrition.feather')
 
 # Sample 70 rows using simple random sampling and set the seed
 attrition_samp = attrition_pop.sample(n=70, random_state=18900217)
@@ -530,7 +544,7 @@ Cluster sampling
 Varieties of coffee
 varieties_pop = list(coffee_ratings['variety'].unique()) -> in
 
-[None, 'Other', 'Bourbon', 'Catimor', 'Ethiopian Yirgacheffe', 'Caturra', 'SL14', 'Sumatra', 'SL34', 'Hawaiian Kona', 'Yellow Bourbon', 'SL28', 'Gesha', 'Catuai', 'Pacamara', 'Typica', 'Sumatra Lintong', 'Mundo Novo', 'Java', 'Peaberry', 'Pacas', 'Mandheling', 'Ruiru 11', 'Arusha', 'Etiopian Heirlooms', 'Moka Peaberry', 'Sulawesi', 'Blue Mountain', 'Marigojipe', 'Pache Comun'] -> out
+[None, 'Other', 'Bourbon', 'Catimor', 'Ethiopian Yirgacheffe', 'Caturra', 'SL14', 'Sumatra', 'SL34', 'Hawaiian Kona', 'Yellow Bourbon', 'SL28', 'Gesha', 'Catuai', 'Pacamara', 'Typica', 'Sumatra Lintong', 'Mundo Novo', 'Java', 'Peaberry', 'Pacas', 'Mandheling', 'Ruiru 11', 'Arusha', 'Ethiopian Heirlooms', 'Moka Peaberry', 'Sulawesi', 'Blue Mountain', 'Marigojipe', 'Pache Comun'] -> out
 
 Stage 1: sampling for subgroups
 import random
@@ -716,12 +730,14 @@ satisfaction_samp = random.sample(satisfaction_unique, k=2)
 # Filter for satisfaction_samp and clear unused categories from RelationshipSatisfaction
 satis_condition = attrition_pop['RelationshipSatisfaction'].isin(
     satisfaction_samp)
+
 attrition_clust_prep = attrition_pop[satis_condition]
+
 attrition_clust_prep['RelationshipSatisfaction'] = attrition_clust_prep['RelationshipSatisfaction'].cat.remove_unused_categories()
 
 # Perform cluster sampling on the selected group, getting 0.25 of attrition_pop
-attrition_clust = attrition_clust_prep.groupby(
-    'RelationshipSatisfaction').sample(n=len(attrition_pop) // 4, random_state=2022)
+attrition_clust = attrition_clust_prep.groupby('RelationshipSatisfaction').sample(
+    n=min(len(attrition_clust_prep) // 4, len(attrition_clust_prep)), replace=True, random_state=2022)
 
 
 # Mean Attrition by RelationshipSatisfaction group
@@ -791,7 +807,7 @@ Point estimate:
 sample_mean = coffee_ratings.sample(n=sample_size)['total_cup_points'].mean()
 
 Relative error as a percentage:
-rel_error_pct = 100 * abs(populaion_mean - sample_mean) / population_mean
+rel_error_pct = 100 * abs(population_mean - sample_mean) / population_mean
 
 Relative error vs sample size
 import matplotlib.pyplot as plt
@@ -799,7 +815,7 @@ errors.plot(x='sample_size', y='relative_error', kind='line')
 plt.show()
 
 Properties:
-* Really noisy, particulrly for small samples
+* Really noisy, particularly for small samples
 * Amplitude is initially steep, then flattens
 * Relative error decreases to zero (when the sample size = population)
 '''
@@ -947,9 +963,15 @@ plt.hist(sample_means_1000, bins=20)
 plt.show()
 '''
 
+
+def expand_grid(data_dict):
+    rows = itertools.product(*data_dict.values())
+    return pd.DataFrame.from_records(rows, columns=data_dict.keys())
+
+
 # Expand a grid representing 5 8-sided dice
-dice = expand_grid(
-    {'die1': [1, 2, 3, 4, 5, 6, 7, 8], 'die2': [1, 2, 3, 4, 5, 6, 7, 8], 'die3': [1, 2, 3, 4, 5, 6, 7, 8], 'die4': [1, 2, 3, 4, 5, 6, 7, 8], 'die5': [1, 2, 3, 4, 5, 6, 7, 8]})
+dice = expand_grid({'die1': [1, 2, 3, 4, 5, 6, 7, 8], 'die2': [1, 2, 3, 4, 5, 6, 7, 8], 'die3': [
+                   1, 2, 3, 4, 5, 6, 7, 8], 'die4': [1, 2, 3, 4, 5, 6, 7, 8], 'die5': [1, 2, 3, 4, 5, 6, 7, 8]})
 
 # Add a column of mean rolls and convert to a categorical
 dice['mean_roll'] = (dice['die1'] + dice['die2'] +
@@ -1030,11 +1052,26 @@ Standard error
 - Standard deviation of the sampling distribution
 
 - It is useful in a variety of contexts
-* Estimating population standrd deviation
-* Setting expectations on what level of variabilty to expect from the sampling process.
+* Estimating population standard deviation
+* Setting expectations on what level of variability to expect from the sampling process.
 
 -Important tool in understanding sampling variability
 '''
+
+sampling_distribution_5 = []
+for i in range(1000):
+    sampling_distribution_5.append(attrition_pop.sample(n=5)[
+        'Attrition'].mean())
+
+sampling_distribution_50 = []
+for i in range(1000):
+    sampling_distribution_50.append(attrition_pop.sample(n=50)[
+        'Attrition'].mean())
+
+sampling_distribution_500 = []
+for i in range(1000):
+    sampling_distribution_500.append(attrition_pop.sample(n=500)[
+        'Attrition'].mean())
 
 # Calculate the mean of the mean attritions for each sampling distribution
 mean_of_means_5 = np.mean(sampling_distribution_5)
@@ -1069,8 +1106,8 @@ Sampling with replacement ('resampling') e.g Rolling dice
 
 Why sample with replacement?
 - coffee_ratings: The dataset is a sample of a larger population of all coffees
-- Each coffee in our sample represents many different hypothetical population coffeess
-- Sampling with replaceement is a proxy
+- Each coffee in our sample represents many different hypothetical population coffees
+- Sampling with replacement is a proxy
 
 Coffee data preparation
 coffee_focus = coffee_ratings[['variety', 'country_of_origin', 'flavor']]
@@ -1230,7 +1267,7 @@ np.mean(bootstrap_distn) -> in
 Interpreting the means
 Bootstrap distribution mean:
 - They are usually close to the sample mean
-- They may not be a good estimate of the popultion mean
+- They may not be a good estimate of the population mean
 * Bootstrapping cannot correct biases from sampling
 
 Sample sd vs bootstrap distribution sd
@@ -1287,6 +1324,22 @@ for i in range(2000):
 # Print the bootstrap distribution results
 print(mean_popularity_2000_boot)
 
+
+sampling_distribution = []
+# Generate a sampling distribution of 2000 replicates
+for i in range(2000):
+    sampling_distribution.append(
+        # Sample 500 rows and calculate the mean popularity
+        np.mean(spotify_population.sample(n=5000)['popularity'])
+    )
+
+bootstrap_distribution = []
+# Generate a bootstrap distribution of 2000 replicates
+for i in range(2000):
+    bootstrap_distribution.append(
+        # Resample 500 rows and calculate the mean popularity
+        np.mean(spotify_sample.sample(n=5000, replace=True)['popularity'])
+    )
 
 # Calculate the population mean popularity
 pop_mean = spotify_population['popularity'].mean()
