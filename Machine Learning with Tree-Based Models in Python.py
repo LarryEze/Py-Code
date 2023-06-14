@@ -1,3 +1,17 @@
+# import necessary packages
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import mean_squared_error as MSE
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.ensemble import VotingClassifier, BaggingClassifier, RandomForestRegressor, AdaBoostClassifier, GradientBoostingRegressor
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from mlxtend.plotting import plot_decision_regions
+
+
 ''' Classification and Regression Trees '''
 
 '''
@@ -56,8 +70,56 @@ Decision Regions
 - The decision region of a linear-classifier boundary is a straight-line, while a classification-tree produces rectangular decision-regions in the feature-space. and it happens because at each split made by the tree, only one feature is involved.*
 '''
 
+
+def plot_labeled_decision_regions(X_test, y_test, clfs):
+    """
+    Function producing a scatter plot of the instances contained in the 2D dataset (X,y) along with the decision regions of two trained classification models contained in the list 'models'.
+
+    Parameters
+    ----------
+    X: pandas DataFrame corresponding to two numerical features 
+    y: pandas Series corresponding the class labels
+    models: list containing two trained classifiers
+    """
+    for clf in clfs:
+
+        plot_decision_regions(
+            np.array(X_test), np.array(y_test), clf=clf, legend=2)
+
+        plt.ylim((0, 0.2))
+
+        # Adding axes annotations
+        plt.xlabel(X_test.columns[0])
+        plt.ylabel(X_test.columns[1])
+        plt.title(str(clf).split('(')[0])
+        plt.show()
+
+
+wbc = pd.read_csv('Machine Learning with Tree-Based Models in Python\wbc.csv')
+
+print(wbc.info())
+
+wbc = wbc.drop(["Unnamed: 32", "id"], axis=1)
+
+print(wbc.head())
+
+# changing diagnosis M and B to 1 and 0 makes it easier to classify.
+# diagnosis M is malignant(bad), B is benign(good) type of tumor
+# run it only once to dont over write
+y = wbc["diagnosis"]    # labels
+
+y = y.map({'M': 1, 'B': 0})
+
+# features
+X = wbc[['radius_mean', 'concave points_mean']]
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
+
+SEED = 1
 # Import DecisionTreeClassifier from sklearn.tree
-from sklearn.tree import DecisionTreeClassifier
 
 # Instantiate a DecisionTreeClassifier 'dt' with a maximum depth of 6
 dt = DecisionTreeClassifier(max_depth=6, random_state=SEED)
@@ -71,20 +133,18 @@ print(y_pred[0:5])
 
 
 # Import accuracy_score
-from sklearn.metrics import accuracy_score
 
 # Predict test set labels
 y_pred = dt.predict(X_test)
 
-# Compute test set accuracy  
+# Compute test set accuracy
 acc = accuracy_score(y_pred, y_test)
 print("Test set accuracy: {:.2f}".format(acc))
 
 
 # Import LogisticRegression from sklearn.linear_model
-from sklearn.linear_model import  LogisticRegression
 
-# Instatiate logreg
+# Instantiate logreg
 logreg = LogisticRegression(random_state=1)
 
 # Fit logreg to the training set
@@ -117,7 +177,7 @@ sp : Split-point
 * gini index
 * entropy
 
-Classificaation-Tree Learning
+Classification-Tree Learning
 - When an unconstrained tree is trained, the nodes are grown recursively i.e a node exists based on the state of its predecessors.
 - At a non-leaf node, the data is split based o:
 * feature f and split-point sp to maximize IG(node)
@@ -149,26 +209,36 @@ NB: The gini index is slightly faster to compute and is the default criterion us
 '''
 
 # Import DecisionTreeClassifier from sklearn.tree
-from sklearn.tree import DecisionTreeClassifier
 
 # Instantiate dt_entropy, set 'entropy' as the information criterion
-dt_entropy = DecisionTreeClassifier(max_depth=8, criterion='entropy', random_state=1)
+dt_entropy = DecisionTreeClassifier(
+    max_depth=8, criterion='entropy', random_state=1)
 
 # Fit dt_entropy to the training set
 dt_entropy.fit(X_train, y_train)
 
-
-# Import accuracy_score from sklearn.metrics
-from sklearn.metrics import accuracy_score
-
 # Use dt_entropy to predict test set labels
-y_pred= dt_entropy.predict(X_test)
+y_pred = dt_entropy.predict(X_test)
 
 # Evaluate accuracy_entropy
 accuracy_entropy = accuracy_score(y_test, y_pred)
 
 # Print accuracy_entropy
 print(f'Accuracy achieved by using entropy: {accuracy_entropy:.3f}')
+
+
+# Instantiate dt_entropy, set 'gini' as the information criterion
+dt_gini = DecisionTreeClassifier(
+    max_depth=8, criterion='gini', random_state=1)
+
+# Fit dt_entropy to the training set
+dt_gini.fit(X_train, y_train)
+
+# Use dt_entropy to predict test set labels
+y_pred = dt_gini.predict(X_test)
+
+# Evaluate accuracy_entropy
+accuracy_gini = accuracy_score(y_test, y_pred)
 
 # Print accuracy_gini
 print(f'Accuracy achieved by using the gini index: {accuracy_gini:.3f}')
@@ -217,18 +287,38 @@ print(rmse_dt) -> in
 - The regression tree shows a greater flexibility and is able to capture the non-linearity, though not fully
 '''
 
+auto_mpg = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python/auto.csv')
+
+print(auto_mpg.info())
+
+# Perform one-hot encoding using pandas
+auto_mpg = pd.get_dummies(auto_mpg)
+
+print(auto_mpg.head())
+
+# features
+X = auto_mpg.drop(['mpg'], axis=1)
+
+# labels
+y = auto_mpg["mpg"]
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
+
 # Import DecisionTreeRegressor from sklearn.tree
-from sklearn.tree import DecisionTreeRegressor
 
 # Instantiate dt
-dt = DecisionTreeRegressor(max_depth=8, min_samples_leaf=0.13, random_state=3)
+dt = DecisionTreeRegressor(
+    max_depth=8, min_samples_leaf=0.13, random_state=3)
 
 # Fit dt to the training set
 dt.fit(X_train, y_train)
 
 
 # Import mean_squared_error from sklearn.metrics as MSE
-from sklearn.metrics import mean_squared_error as MSE
 
 # Compute y_pred
 y_pred = dt.predict(X_test)
@@ -240,10 +330,19 @@ mse_dt = MSE(y_pred, y_test)
 rmse_dt = mse_dt ** (1/2)
 
 # Print rmse_dt
-print("Test set RMSE of dt: {:.2f}".format(rmse_dt))
+print('Regression Tree test set RMSE: {:.2f}'.format(rmse_dt))
 
 
-# Predict test set labels 
+# Instantiate lr
+lr = LinearRegression()
+
+# Fit lr to the training set
+lr.fit(X_train, y_train)
+
+# Compute y_pred
+y_pred = lr.predict(X_test)
+
+# Predict test set labels
 y_pred_lr = lr.predict(X_test)
 
 # Compute mse_lr
@@ -254,9 +353,6 @@ rmse_lr = mse_lr ** (1/2)
 
 # Print rmse_lr
 print('Linear Regression test set RMSE: {:.2f}'.format(rmse_lr))
-
-# Print rmse_dt
-print('Regression Tree test set RMSE: {:.2f}'.format(rmse_dt))
 
 
 ''' The Bias-Variance Tradeoff '''
@@ -313,7 +409,7 @@ Bias-Variance Tradeoff
 '''
 Diagnose bias and variance problems
 Estimating the Generalization Error
-- How do we estmate the generalization error of a mode?
+- How do we estimate the generalization error of a mode?
 - This cannot be done directly because:
 * f is unknown
 * usually we only have one dataset
@@ -335,13 +431,13 @@ Better Model Evaluation with Cross-Validation
 * Hold-Out CV
 
 K-Fold CV
-CV error = mean of the obatained errors.
+CV error = mean of the obtained errors.
 
 CV error = ( E1 + ... + E10 ) / 10
 
 Diagnose Variance Problems
 - If fhat suffers from high variance: CV error of fhat > training set error of fhat
-- Fhat is said to overfit the training set. To remedy overfitting:
+- Fhat is said to overfits the training set. To remedy overfitting:
 * Decrease model complexity,
 * for example: decrease max depth, increase min samples per leaf, ...
 * Gather more data to train fhat
@@ -397,20 +493,22 @@ Test MSE: 20.92 -> out
 '''
 
 # Import train_test_split from sklearn.model_selection
-from sklearn.model_selection import train_test_split 
 
 # Set SEED for reproducibility
 SEED = 1
 
 # Split the data into 70% train and 30% test
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=SEED)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=SEED)
 
 # Instantiate a DecisionTreeRegressor dt
-dt = DecisionTreeRegressor(max_depth=4, min_samples_leaf=0.26, random_state=SEED)
+dt = DecisionTreeRegressor(
+    max_depth=4, min_samples_leaf=0.26, random_state=SEED)
 
 
 # Compute the array containing the 10-folds CV MSEs
-MSE_CV_scores = - cross_val_score(dt, X_train, y_train, cv=10, scoring='neg_mean_squared_error', n_jobs=-1)
+MSE_CV_scores = - cross_val_score(dt, X_train, y_train,
+                                  cv=10, scoring='neg_mean_squared_error', n_jobs=-1)
 
 # Compute the 10-folds CV RMSE
 RMSE_CV = (MSE_CV_scores.mean())**(1/2)
@@ -420,7 +518,6 @@ print('CV RMSE: {:.2f}'.format(RMSE_CV))
 
 
 # Import mean_squared_error from sklearn.metrics as MSE
-from sklearn.metrics import mean_squared_error as MSE 
 
 # Fit dt to the training set
 dt.fit(X_train, y_train)
@@ -447,11 +544,11 @@ Advantages of CARTs (Classification and Regression Trees)
 Limitations of CARTs
 - Classification: can only produce orthogonal decision boundaries
 - They are also very sensitive to small variations in the training set
-- High variance: unconstrained CARTs may overfit the training set
+- High variance: unconstrained CARTs may overfits the training set
 - A Solution that takes advantage of the flexibility of CARTs while reducing their tendency to memorize noise is ensemble learning
 
 Ensemble Learning
-- As a first step, different models are trained on the same datset
+- As a first step, different models are trained on the same dataset
 - Let each model make its own predictions
 - Meta-model: It aggregates the predictions of individual models and outputs a final prediction
 - Final prediction: It is more robust and less prone to errors than each individual model
@@ -468,7 +565,7 @@ Predictions             P1               P2             P3        P4
                 Decision Tree   Logistic Regression   KNN       Other...
                         \                |              |         /
 Training                 \               |              |        /        
-                                            Traing set
+                                            Training set
 
 Ensemble Learning in Practice: Voting Classifier
 - Binary classification task
@@ -537,8 +634,25 @@ print('Voting Classifier: {.3f}'.format(accuracy_score(y_test, y_pred))) -> in
 Voting Classifier: 0.953 -> out
 '''
 
+indian_liver_patient_preprocessed = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python\indian_liver_patient_preprocessed.csv')
+
+print(indian_liver_patient_preprocessed.info())
+
+print(indian_liver_patient_preprocessed.head())
+
+# features
+X = indian_liver_patient_preprocessed.drop(['Liver_disease'], axis=1)
+
+# labels
+y = indian_liver_patient_preprocessed["Liver_disease"]
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
 # Set seed for reproducibility
-SEED=1
+SEED = 1
 
 # Instantiate lr
 lr = LogisticRegression(random_state=SEED)
@@ -550,33 +664,33 @@ knn = KNN(n_neighbors=27)
 dt = DecisionTreeClassifier(min_samples_leaf=0.13, random_state=SEED)
 
 # Define the list classifiers
-classifiers = [('Logistic Regression', lr), ('K Nearest Neighbours', knn), ('Classification Tree', dt)]
+classifiers = [('Logistic Regression', lr),
+               ('K Nearest Neighbours', knn), ('Classification Tree', dt)]
 
 
 # Iterate over the pre-defined list of classifiers
-for clf_name, clf in classifiers:    
+for clf_name, clf in classifiers:
 
     # Fit clf to the training set
-    clf.fit(X_train, y_train)    
+    clf.fit(X_train, y_train)
 
     # Predict y_pred
     y_pred = clf.predict(X_test)
-    
+
     # Calculate accuracy
-    accuracy = accuracy_score(y_pred, y_test) 
+    accuracy = accuracy_score(y_pred, y_test)
 
     # Evaluate clf's accuracy on the test set
     print('{:s} : {:.3f}'.format(clf_name, accuracy))
 
 
 # Import VotingClassifier from sklearn.ensemble
-from sklearn.ensemble import VotingClassifier 
 
 # Instantiate a VotingClassifier vc
-vc = VotingClassifier(estimators=classifiers)     
+vc = VotingClassifier(estimators=classifiers)
 
 # Fit vc to the training set
-vc.fit(X_train, y_train)   
+vc.fit(X_train, y_train)
 
 # Evaluate the test set predictions
 y_pred = vc.predict(X_test)
@@ -647,11 +761,42 @@ print('Accuracy of Bagging Classifier: {:.3f}'.format(accuracy)) -> in
 Accuracy of Bagging Classifier: 0.936 -> out
 '''
 
+indian_liver_patient = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python\indian_liver_patient.csv')
+
+print(indian_liver_patient.info())
+
+indian_liver_patient.rename(columns={'Dataset': 'Liver_disease'}, inplace=True)
+
+# Missing value imputation
+median_AG_ratio_by_gender = indian_liver_patient.groupby(
+    'Gender')['Albumin_and_Globulin_Ratio'].median()
+
+indian_liver_patient['Albumin_and_Globulin_Ratio'] = indian_liver_patient['Albumin_and_Globulin_Ratio'].fillna(
+    indian_liver_patient['Gender'].map(median_AG_ratio_by_gender))
+
+# Perform one-hot encoding using pandas
+indian_liver_patient = pd.get_dummies(indian_liver_patient)
+
+print(indian_liver_patient.head())
+
+# features
+X = indian_liver_patient.drop(['Liver_disease', 'Gender_Female'], axis=1)
+
+# Original dataframe has 1 & 2 encoding for whether a subject has liver disease or not, respectively.
+# I will change this into a binary 0 & 1 feature
+y = indian_liver_patient["Liver_disease"]    # labels
+
+y = y.map({1: 1, 2: 0})
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
+
 # Import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeClassifier 
 
 # Import BaggingClassifier
-from sklearn.ensemble import BaggingClassifier 
 
 # Instantiate dt
 dt = DecisionTreeClassifier(random_state=1)
@@ -668,7 +813,7 @@ y_pred = bc.predict(X_test)
 
 # Evaluate acc_test
 acc_test = accuracy_score(y_pred, y_test)
-print('Test set accuracy of bc: {:.2f}'.format(acc_test)) 
+print('Test set accuracy of bc: {:.2f}'.format(acc_test))
 
 
 '''
@@ -739,19 +884,18 @@ OOB accuracy: 0.925 -> out
 '''
 
 # Import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeClassifier
 
 # Import BaggingClassifier
-from sklearn.ensemble import BaggingClassifier 
 
 # Instantiate dt
 dt = DecisionTreeClassifier(min_samples_leaf=8, random_state=1)
 
 # Instantiate bc
-bc = BaggingClassifier(base_estimator=dt, n_estimators=50, oob_score=True, random_state=1)
+bc = BaggingClassifier(base_estimator=dt, n_estimators=50,
+                       oob_score=True, random_state=1)
 
 
-# Fit bc to the training set 
+# Fit bc to the training set
 bc.fit(X_train, y_train)
 
 # Predict test set labels
@@ -764,7 +908,8 @@ acc_test = accuracy_score(y_pred, y_test)
 acc_oob = bc.oob_score_
 
 # Print acc_test and acc_oob
-print('Test set accuracy: {:.3f}, OOB accuracy: {:.3f}'.format(acc_test, acc_oob))
+print('Test set accuracy: {:.3f}, OOB accuracy: {:.3f}'.format(
+    acc_test, acc_oob))
 
 
 '''
@@ -847,18 +992,33 @@ sorted_importances_rf = importances_rf.sort_values()
 sorted_importances_rf.plot(kind='barh', color='lightgreen'); plt.show()
 '''
 
+bike_share = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python/bikes.csv')
+
+print(bike_share.info())
+
+print(bike_share.head())
+
+# features
+X = bike_share.drop(['cnt'], axis=1)
+
+# labels
+y = bike_share['cnt']
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
 # Import RandomForestRegressor
-from sklearn.ensemble import RandomForestRegressor 
 
 # Instantiate rf
 rf = RandomForestRegressor(n_estimators=25, random_state=2)
 
-# Fit rf to the training set    
-rf.fit(X_train, y_train) 
+# Fit rf to the training set
+rf.fit(X_train, y_train)
 
 
 # Import mean_squared_error as MSE
-from sklearn.metrics import mean_squared_error as MSE
 
 # Predict the test set labels
 y_pred = rf.predict(X_test)
@@ -871,7 +1031,7 @@ print('Test set RMSE of rf: {:.2f}'.format(rmse_test))
 
 
 # Create a pd.Series of features importances
-importances = pd.Series(data=rf.feature_importances_, index= X_train.columns)
+importances = pd.Series(data=rf.feature_importances_, index=X_train.columns)
 
 # Sort importances
 importances_sorted = importances.sort_values()
@@ -898,7 +1058,7 @@ Boosting
 
 Adaboost
 - Adaboost stands for Adaptive Boosting
-- Each predictor pays more attetion to the instances wrongly predicted by its predecessor
+- Each predictor pays more attention to the instances wrongly predicted by its predecessor
 - It is achieved by constantly changing the weights of training instances
 - each predictor is assigned a coefficient alpha
 - alpha weighs its contribution in the ensemble's final prediction
@@ -953,11 +1113,41 @@ print('ROC AUC score: {:.2f}'.format(adb_clf_roc_auc_score)) -> in
 ROC AUC score: 0.99 -> out
 '''
 
+indian_liver_patient = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python\indian_liver_patient.csv')
+
+print(indian_liver_patient.info())
+
+indian_liver_patient.rename(columns={'Dataset': 'Liver_disease'}, inplace=True)
+
+# Missing value imputation
+median_AG_ratio_by_gender = indian_liver_patient.groupby(
+    'Gender')['Albumin_and_Globulin_Ratio'].median()
+
+indian_liver_patient['Albumin_and_Globulin_Ratio'] = indian_liver_patient['Albumin_and_Globulin_Ratio'].fillna(
+    indian_liver_patient['Gender'].map(median_AG_ratio_by_gender))
+
+# Perform one-hot encoding using pandas
+indian_liver_patient = pd.get_dummies(indian_liver_patient)
+
+print(indian_liver_patient.head())
+
+# features
+X = indian_liver_patient.drop(['Liver_disease', 'Gender_Female'], axis=1)
+
+# Original dataframe has 1 & 2 encoding for whether a subject has liver disease or not, respectively.
+# I will change this into a binary 0 & 1 feature
+y = indian_liver_patient["Liver_disease"]    # labels
+
+y = y.map({1: 1, 2: 0})
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
 # Import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeClassifier
 
 # Import AdaBoostClassifier
-from sklearn.ensemble import AdaBoostClassifier 
 
 # Instantiate dt
 dt = DecisionTreeClassifier(max_depth=2, random_state=1)
@@ -974,7 +1164,6 @@ y_pred_proba = ada.predict_proba(X_test)[:, 1]
 
 
 # Import roc_auc_score
-from sklearn.metrics import roc_auc_score 
 
 # Evaluate test-set roc_auc_score
 ada_roc_auc = roc_auc_score(y_test, y_pred_proba)
@@ -995,7 +1184,7 @@ Gradient Boosted Trees
 
 Shrinkage
 - It is an important parameter used in training gradient boosted trees
-- It refers to the fact that the prediction of each tree in the ensemble is shrinked after it is multiplied by a learning rate eta which is a number between 0 and 1
+- It refers to the fact that the prediction of each tree in the ensemble is shrunk after it is multiplied by a learning rate eta which is a number between 0 and 1
 - A smaller value of eta should be compensated by a greater number of estimators in order for the ensemble to reach a certain performance.
 
 Gradient Boosted Trees: Prediction
@@ -1035,11 +1224,27 @@ print('Test set RMSE: {:.2f}'.format(rmse_test)) -> in
 Test set RMSE: 4.01 -> out
 '''
 
+bike_share = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python/bikes.csv')
+
+print(bike_share.info())
+
+print(bike_share.head())
+
+# features
+X = bike_share.drop(['cnt'], axis=1)
+
+# labels
+y = bike_share['cnt']
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
 # Import GradientBoostingRegressor
-from sklearn.ensemble import GradientBoostingRegressor 
 
 # Instantiate gb
-gb = GradientBoostingRegressor(max_depth= 4, n_estimators= 200, random_state=2)
+gb = GradientBoostingRegressor(max_depth=4, n_estimators=200, random_state=2)
 
 
 # Fit gb to the training set
@@ -1050,10 +1255,9 @@ y_pred = gb.predict(X_test)
 
 
 # Import mean_squared_error as MSE
-from sklearn.metrics import mean_squared_error as MSE
 
 # Compute MSE
-mse_test = MSE(y_test, y_pred) 
+mse_test = MSE(y_test, y_pred)
 
 # Compute RMSE
 rmse_test = mse_test ** (1/2)
@@ -1111,10 +1315,10 @@ Test set RMSE: 3.95 -> out
 '''
 
 # Import GradientBoostingRegressor
-from sklearn.ensemble import GradientBoostingRegressor
 
 # Instantiate sgbr
-sgbr = GradientBoostingRegressor(max_depth=4, subsample=0.9, max_features=0.75, n_estimators=200, random_state=2)
+sgbr = GradientBoostingRegressor(
+    max_depth=4, subsample=0.9, max_features=0.75, n_estimators=200, random_state=2)
 
 
 # Fit sgbr to the training set
@@ -1125,7 +1329,6 @@ y_pred = sgbr.predict(X_test)
 
 
 # Import mean_squared_error as MSE
-from sklearn.metrics import mean_squared_error as MSE 
 
 # Compute test set MSE
 mse_test = MSE(y_test, y_pred)
@@ -1140,27 +1343,27 @@ print('Test set RMSE of sgbr: {:.3f}'.format(rmse_test))
 ''' Model Tuning '''
 
 '''
-Tuning a CART's Hyperparameters
-- To obtain a better performance, the hyperparameters of a machine learning should be tuned.
+Tuning a CART's Hyperparameter
+- To obtain a better performance, the hyperparameter of a machine learning should be tuned.
 
-Hyperparameters
+Hyperparameter
 Machine learning model:
 -Parameters: Its learned from data through training
 * CART examples: split-point of a node, split-feature of a node,
-- Hyperparameters: Its not learned from data; they should be set prior to training
+- Hyperparameter: Its not learned from data; they should be set prior to training
 * CART example: max_depth, min_sample_leaf, splitting criterion
 
 What is hyperparameter tuning?
-- Problem: It consists of searching for the set of optimal hyperparameters for the learning algorithm
-- Solution: It involves finding the set of optimal hyperparameters yielding an optimal model
+- Problem: It consists of searching for the set of optimal hyperparameter for the learning algorithm
+- Solution: It involves finding the set of optimal hyperparameter yielding an optimal model
 - Optimal model: This yields an optimal score
 - score: This function measures the agreement between true labels and a model's predictions.
 * In sklearn defaults to accuracy (classification) and R^2 (regression)
 - Cross validation is used to estimate the generalization performance.
 
-Why tune hyperparameters?
-- In sklearn, a model default hyperparameters are not optimal for all problems
-- Hyperparameters should be tuned to obtain the best model performance.
+Why tune hyperparameter?
+- In sklearn, a model default hyperparameter are not optimal for all problems
+- Hyperparameter should be tuned to obtain the best model performance.
 
 Approaches to hyperparameter tuning
 - Grid Search
@@ -1173,19 +1376,19 @@ Grid search cross validation
 - First, manually set a grid of discrete hyperparameter values
 - Set a metric for scoring model performance
 - Search exhaustively through the grid
-- For each set of hyperparameters, evaluate each model's CV score
-- The optimal hyperparameters are those of the model achieving the best CV score
+- For each set of hyperparameter, evaluate each model's CV score
+- The optimal hyperparameter are those of the model achieving the best CV score
 - NB: Grid-search suffers from the curse of dimensionality i.e the bigger the grid, the longer it takes to find the solution.
 
 Grid search cross validation: example
-- Hyperparameters grids:
+- Hyperparameter grids:
 * max_depth = {2, 3, 4}
 * min_samples_leaf = {0.05, 0.1}
 - Hyperparameter space = { (2, 0.05), (2, 0.1), (3, 0.05), ... }
 - CV scores = { score(2, 0.05), ... }
-- Optimal hyperparameters = set of hyperparameters corresponding to the model achieving the best CV score
+- Optimal hyperparameter = set of hyperparameter corresponding to the model achieving the best CV score
 
-Inspecting the hyperparameters of a CART in sklearn
+Inspecting the hyperparameter of a CART in sklearn
 # Import DecisionTreeClassifier
 from sklearn.tree import DecisionTreeClassifier
 
@@ -1195,7 +1398,7 @@ SEED = 1
 # Instantiate a DecisionTreeClassifier 'dt'
 dt = DecisionTreeClassifier(random_state=SEED)
 
-# Print out 'dt's hyperparameters
+# Print out 'dt's hyperparameter
 print(dt.get_params()) -> in
 
 {   'ccp_alpha': 0.0, 
@@ -1218,19 +1421,19 @@ NB: max_features is the number of features to consider when looking for the best
 
 # Import GridSearchCV
 from sklearn.model_selection import GridSearchCV
-# Define the grid of hyperparameters 'params_dt'
+# Define the grid of hyperparameter 'params_dt'
 params_dt = { 'max_depth': [3, 4, 5, 6], 'min_samples_leaf': [0.04, 0.06, 0.08], 'max_features': [0.2, 0.4, 0.6, 0.8] }
 # Instantiate a 10-fold CV grid search object 'grid_dt'
 grid_dt = GridSearchCV(estimator=dt, param_grid=params_dt, scoring='accuracy', cv=10, n_jobs=-1)
 # Fit 'grid_dt' to the training data
 grid_dt.fit(X_train, y_train)
 
-Extracting the best hyperparameters
-# Extract best hyperparameters from'grid_dt'
+Extracting the best hyperparameter
+# Extract best hyperparameter from'grid_dt'
 best_hyperparams = grid_dt.best_params_
-print('Best hyperparameters:\n', best_hyperparams) -> in
+print('Best hyperparameter:\n', best_hyperparams) -> in
 
-Best hyperparameters:
+Best hyperparameter:
 {'max_depth': 3, 'max_features': 0.4, 'min_samples_leaf': 0.06} -> out
 
 # Extract best CV score from'grid_dt'
@@ -1252,25 +1455,45 @@ print('Test set accuracy of best model: {:.3f}'format(test_acc)) -> in
 Test set accuracy of best model: 0.947 -> out
 '''
 
+indian_liver_patient_preprocessed = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python\indian_liver_patient_preprocessed.csv')
+
+print(indian_liver_patient_preprocessed.info())
+
+print(indian_liver_patient_preprocessed.head())
+
+# features
+X = indian_liver_patient_preprocessed.drop(['Liver_disease'], axis=1)
+
+# labels
+y = indian_liver_patient_preprocessed["Liver_disease"]
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
+
 # Define params_dt
-params_dt = {'max_depth': [2, 3, 4], 'min_samples_leaf': [0.12, 0.14, 0.16, 0.18]}
+params_dt = {'max_depth': [2, 3, 4],
+             'min_samples_leaf': [0.12, 0.14, 0.16, 0.18]}
 
 
 # Import GridSearchCV
-from sklearn.model_selection import GridSearchCV 
+
+# Instantiate a DecisionTreeClassifier 'dt'
+dt = DecisionTreeClassifier(random_state=SEED)
 
 # Instantiate grid_dt
-grid_dt = GridSearchCV(estimator=dt, param_grid=params_dt, scoring='roc_auc', cv=5, n_jobs=-1)
-
+grid_dt = GridSearchCV(estimator=dt, param_grid=params_dt,
+                       scoring='roc_auc', cv=5, n_jobs=-1).fit(X_train, y_train)
 
 # Import roc_auc_score from sklearn.metrics
-from sklearn.metrics import roc_auc_score 
 
 # Extract the best estimator
 best_model = grid_dt.best_estimator_
 
 # Predict the test set probabilities of the positive class
-y_pred_proba = grid_dt.predict_proba(X_test)[:, 1]
+y_pred_proba = best_model.predict_proba(X_test)[:, 1]
 
 # Compute test_roc_auc
 test_roc_auc = roc_auc_score(y_test, y_pred_proba)
@@ -1280,9 +1503,9 @@ print('Test set ROC AUC score: {:.3f}'.format(test_roc_auc))
 
 
 '''
-Tuning a RF's Hyperparameters
-Random Forests Hyperparameters
-- CART hyperparameters
+Tuning a RF's Hyperparameter
+Random Forests Hyperparameter
+- CART hyperparameter
 - number of estimators
 - bootstrap
 - ...
@@ -1293,7 +1516,7 @@ Hyperparameter tuning:
 - It may sometimes lead only to very slight improvement of the model's performance
 * It is desired to weigh the impact of tuning on the pipeline of the data analysis project as a whole in order to understand if it is worth pursuing
 
-Inspecting RF hyperparameters in sklearn
+Inspecting RF hyperparameter in sklearn
 # Import RandomForestRegressor
 from sklearn.ensemble import RandomForestRegressor
 
@@ -1303,7 +1526,7 @@ SEED = 1
 # Instantiate a random forest regressor 'rf'
 rf = RandomForestRegressor(random_state=SEED)
 
-# Inspect 'rf' s hyperparameters
+# Inspect 'rf' s hyperparameter
 rf.get_params() -> in
 
 {   'bootstrap': True, 
@@ -1327,7 +1550,7 @@ rf.get_params() -> in
 # Basic import
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.model_selection import GridSearchCV
-# Define the grid of hyperparameters 'params_rf'
+# Define the grid of hyperparameter 'params_rf'
 params_rf = { 'n_estimators': [300, 400, 500], 'max_depth': [4, 6, 8], 'min_samples_leaf': [0.1, 0.2], 'max_features': ['log2', 'sqrt'] }
 # Instantiate 'grid_rf'
 grid_rf = GridSearchCV(estimator=rf, param_grid=params_rf, scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=-1)
@@ -1342,13 +1565,13 @@ Fitting 3 folds for each of 36 candidates, totalling 108 fits
 [Parallel(n_jobs=-1)]: Done 108 tasks | elapsed: 24.3s finished
 RandomForestRegressor(bootstrap= True, criterion= 'mse',  max_depth= 4, max_features= 'log2', max_leaf_nodes= None, min_impurity_decrease= 0.0, min_impurity_split= None, min_samples_leaf= 0.1, min_samples_split= 2, min_weight_fraction_leaf= 0.0, n_estimators= 400, n_jobs= 1, oob_score= False, random_state= 1, verbose= 0, warm_start= False) -> out
 
-Extracting the best hyperparameters
-# Extract best hyperparameters from'grid_rf'
+Extracting the best hyperparameter
+# Extract best hyperparameter from'grid_rf'
 best_hyperparams = grid_rf.best_params_
 
-print('Best hyperparameters:\n', best_hyperparams) -> in
+print('Best hyperparameter:\n', best_hyperparams) -> in
 
-Best hyperparameters:
+Best hyperparameter:
 {'max_depth': 4, 'max_features': 'log2', 'min_samples_leaf': 0.1, 'n_estimators': 400} -> out
 
 Evaluating the best model performance
@@ -1367,19 +1590,38 @@ print('Test set RMSE of rf: {:.2f}'format(rmse_test)) -> in
 Test set RMSE of rf: 3.89 -> out
 '''
 
+bike_share = pd.read_csv(
+    'Machine Learning with Tree-Based Models in Python/bikes.csv')
+
+print(bike_share.info())
+
+print(bike_share.head())
+
+# features
+X = bike_share.drop(['cnt'], axis=1)
+
+# labels
+y = bike_share['cnt']
+
+# we should split data by train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=1)
+
 # Define the dictionary 'params_rf'
-params_rf = {'n_estimators': [100, 350, 500], 'max_features': ['log2', 'auto', 'sqrt'], 'min_samples_leaf': [2, 10, 30]}
+params_rf = {'n_estimators': [100, 350, 500], 'max_features': [
+    'log2', 'auto', 'sqrt'], 'min_samples_leaf': [2, 10, 30]}
 
 
 # Import GridSearchCV
-from sklearn.model_selection import GridSearchCV 
+
+rf = RandomForestRegressor(n_jobs=-1, random_state=2)
 
 # Instantiate grid_rf
-grid_rf = GridSearchCV(estimator=rf, param_grid=params_rf, scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=-1)
+grid_rf = GridSearchCV(estimator=rf, param_grid=params_rf,
+                       scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=-1).fit(X_train, y_train)
 
 
-# Import mean_squared_error from sklearn.metrics as MSE 
-from sklearn.metrics import mean_squared_error as MSE 
+# Import mean_squared_error from sklearn.metrics as MSE
 
 # Extract the best estimator
 best_model = grid_rf.best_estimator_
@@ -1391,4 +1633,4 @@ y_pred = best_model.predict(X_test)
 rmse_test = MSE(y_test, y_pred) ** (1/2)
 
 # Print rmse_test
-print('Test RMSE of best model: {:.3f}'.format(rmse_test)) 
+print('Test RMSE of best model: {:.3f}'.format(rmse_test))
