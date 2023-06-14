@@ -1,3 +1,17 @@
+# import necessary packages
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import confusion_matrix, classification_report, mean_squared_error, roc_auc_score, roc_curve
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split, cross_val_score, KFold
+from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeClassifier
+
+
 ''' Classification '''
 
 '''
@@ -14,7 +28,7 @@ Examples of machine learning:
 Unsupervised learning
 - It is the process of uncovering hidden patterns and structures from unlabeled data
 - Example:
-* Grouping customers into distinct categories based on their purchasing behaviour without knowning in advance what these categories are (Clustering) 
+* Grouping customers into distinct categories based on their purchasing behaviour without knowing in advance what these categories are (Clustering) 
 
 Supervised learning
 - It is a type of machine learning where the values to be predicted are already known
@@ -29,7 +43,7 @@ Classification: It is used to predict the label, or category, of an observation 
 
 Regression: It is used to predict continuous values (i.e target variable is continuous)
 - Examples:
-* Predicting the price of a property from features such as no of berooms, and size of a property
+* Predicting the price of a property from features such as no of bedrooms, and size of a property
 
 Naming conventions
 - Feature = predictor variable = independent variable
@@ -92,12 +106,10 @@ print('Predictions: {}'.format(predictions)) -> in
 Predictions: [1, 0, 0] -> out
 '''
 
+churn_df = pd.read_csv('Supervised Learning with scikit-learn/telecom_churn_clean.csv')
 # Import KNeighborsClassifier
 
 # Create arrays for the features and the target variable
-from sklearn.metrics import confusion_matrix, classification_report
-import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
 y = churn_df["churn"].values
 X = churn_df[["account_length", "customer_service_calls"]].values
 
@@ -137,7 +149,7 @@ Train /test split
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=21, stratify=y)
 
-* It is best practice to ensure our split reflects the proportion of labels inout data. e.g if churn occurs in 10% of observations, we want 10% of labelss in out training and test sets to represent churn and it is achieved by setting stratify equal to y (stratify=y)
+* It is best practice to ensure our split reflects the proportion of labels in our data. e.g if churn occurs in 10% of observations, we want 10% of labels in our training and test sets to represent churn and it is achieved by setting stratify equal to y (stratify=y)
 
 knn = KNeighborsClassifier(n_neighbors=6)
 knn.fit(X_train, y_train)
@@ -170,7 +182,7 @@ plt.title('KNN: Varying Number of Neighbors')
 plt.plot(neighbors, train_accuracies.values(), label='Training Accuracy')
 plt.plot(neighbors, test_accuracies.values(), label='Testing Accuracy')
 plt.legend()
-plt.xlable('Number of Neighbors')
+plt.xlabel('Number of Neighbors')
 plt.ylabel('Accuracy')
 plt.show()
 '''
@@ -236,7 +248,7 @@ Introduction to regression
 
 Predicting blood glucose levels
 import pandas as pd
-diabetest_df = pd.read_csv('diabetes.csv')
+diabetes_df = pd.read_csv('diabetes.csv')
 print(diabetes_df.head()) -> in
 
     pregnancies glucose triceps insulin   bmi   age diabetes
@@ -246,7 +258,7 @@ print(diabetes_df.head()) -> in
 3             1      89      23      94  28.1    21        0
 4             0     137      35     168  43.1    33        1 -> out
 
-Creating feature and trget arrays
+Creating feature and target arrays
 X = diabetes_df.drop('glucose', axis=1).values
 y = diabetes_df['glucose'].values
 print(type(X), type(y)) -> in
@@ -284,6 +296,7 @@ plt.xlabel('Body Mass Index')
 plt.show()
 '''
 
+sales_df = pd.read_csv('Supervised Learning with scikit-learn/advertising_and_sales_clean.csv')
 
 # Create X from the radio column's values
 X = sales_df['radio'].values
@@ -333,7 +346,7 @@ Regression mechanics
 * Simple linear regression uses one feature
 y = target
 x = single feature
-a, b = parameters / coefficienst of the model - slope, intercept
+a, b = parameters / coefficients of the model - slope, intercept
 
 - How do we choose a and b?
 * Define an error function for any given line
@@ -348,7 +361,7 @@ Ordinary Least Squares
 - Residual sum of squares (RSS) can be calculated by squaring the residuals  and adding all the squared residuals
 - Ordinary Least Squares (OLS) are used to minimize the RSS
 
-Linear rgression in higher dimensions
+Linear regression in higher dimensions
 y = a1x1 + a2x2+ b
 
 - To fit a linear regression model here:
@@ -365,7 +378,7 @@ Linear regression using all features
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-reg_all = LinearRegressio()
+reg_all = LinearRegression()
 reg_all.fit(X_train, y_train)
 y_pred = reg_all.predict(X_test)
 
@@ -394,7 +407,7 @@ mean_squared_error(y_test, y_pred, squared=False) -> in
 '''
 
 # Create X and y arrays
-X = sales_df.drop("sales", axis=1).values
+X = sales_df.drop(["sales", 'influencer'], axis=1).values
 y = sales_df["sales"].values
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -427,7 +440,7 @@ print("RMSE: {}".format(rmse))
 '''
 Cross-validation
 Cross-validation motivation
-- model performace is dependent on the way we split up the data
+- model performance is dependent on the way we split up the data
 - It is not representative of the model's ability to generalize to unseen data
 - Solution:  cross-validation!
 
@@ -484,6 +497,8 @@ cv_scores = cross_val_score(reg, X, y, cv=kf)
 print(cv_scores)
 
 
+cv_results = cv_scores.copy()
+
 # Print the mean
 print(np.mean(cv_results))
 
@@ -503,7 +518,7 @@ Why regularize?
 - Regularization: Penalizes large coefficients
 
 Ridge regression
-- Loss function = OLS (Ordiary Least Squares) loss function + Squared value of each coefficient, multiplied by a constant, alpha 
+- Loss function = OLS (Ordinary Least Squares) loss function + Squared value of each coefficient, multiplied by a constant, alpha 
 - Ridge penalizes large positive or negative coefficients values
 - alpha : Its the parameter we need to choose in order to fit and predict.
 * Picking alpha for ridge is similar to picking k in KNN
@@ -525,7 +540,7 @@ print(scores) -> in
 [0.2828466623222221, 0.28320633574804777, 0.2853000732200006, 0.26423984812668133, 0.19292424694100963] -> out
 
 Lasso regression 
-- Loss function = OLS (Ordiary Least Squares) loss function + absolute value of each coefficient, multiplied by a constant, alpha 
+- Loss function = OLS (Ordinary Least Squares) loss function + absolute value of each coefficient, multiplied by a constant, alpha 
 
 Lasso regression in scikit-learn
 from sklearn.linear_model import Lasso
@@ -542,7 +557,7 @@ print(scores) -> in
 Lasso regression for feature selection
 - Lasso can be used to select important features of a dataset
 * because it shrinks the coefficients of less important features to zero
-* features whose coefficients are not shrun to zero are selected by lasso algorithm
+* features whose coefficients are not shrunk to zero are selected by lasso algorithm
 
 Lasso for feature selection in scikit-learn
 from sklearn.linear_model import Lasso
@@ -573,6 +588,7 @@ for alpha in alphas:
 print(ridge_scores)
 
 
+sales_columns = np.array(['tv', 'radio', 'social_media'])
 # Import Lasso
 
 # Instantiate a lasso regression model
@@ -623,19 +639,19 @@ False Negative - fn
 - Confusion matrix can retrieve accuracy
 * Accuracy: tp + tn / tp + tn + fp +fn
 
-- Confusion matric can calculate precision (aka Positive predictive value)
+- Confusion matrix can calculate precision (aka Positive predictive value)
 * Precision: tp / tp + fp
 
 * High precision = lower false positive rate
 * High precision: i.e not many legitimate transactions are predicted to be fraudulent
 
-- Confusion matric can calculate sensitivity (aka Recall)
+- Confusion matrix can calculate sensitivity (aka Recall)
 * Recall: tp / tp + fn
 
 * High recall = lower false negative rate
 * High recall: i.e Predicted most fraudulent transactions correctly
 
-- Confusion matric can calculate F1 score (Harmonic mean of precision and recall)
+- Confusion matrix can calculate F1 score (Harmonic mean of precision and recall)
 * F1 score: 2 x ( (precision x recall) / (precision + recall) )
 * This metric gives equal weight to precision and recall, therefore it factors in both the number of errors made by the model and the type of errors
 * F1 score favours models with similar precision and recall, and is a useful metric if we are seeking a model which perform reasonably well across both metrics
@@ -651,7 +667,7 @@ print(confusion_matrix(y_test, y_pred)) -> in
 [   [1106 11]
     [ 183 34]   ] -> out
 
-Classificaation report in scikit-learn
+Classification report in scikit-learn
 print(classification_report(y_test, y_pred)) -> in
 
                 precision recall f1-score support
@@ -662,6 +678,15 @@ accuracy                             0.85    1334
 macro avg            0.81   0.57     0.59    1334
 weighted avg         0.84   0.85     0.81    1334 -> out
 '''
+
+diabetes_df = pd.read_csv('Supervised Learning with scikit-learn\diabetes_clean.csv')
+
+# Create X and y arrays
+X = diabetes_df[["bmi", 'age']].values
+y = diabetes_df["diabetes"].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
 
 #  Import confusion matrix
 
@@ -687,7 +712,7 @@ Logistic regression for binary classification
 * The data is labeled 1
 - If the probability, p < 0.5:
 * The data is labeled 0
-- NB: logistic regression produces a linar decision boundary
+- NB: logistic regression produces a linear decision boundary
 
 Logistic regression in scikit-learn
 from sklearn.linear_model import LogisticRegression
@@ -703,7 +728,7 @@ print(y_pred_probs[0]) -> in
 [0.08961376] -> out
 
 Probability thresholds
-- By default, logistic regression treshold = 0.5
+- By default, logistic regression threshold = 0.5
 - threshold is not specific to logistic regression
 * KNN classifiers also have thresholds
 - What happens if we ary the threshold?
@@ -851,7 +876,7 @@ lasso_cv = GridSearchCV(lasso, param_grid, cv=kf)
 
 # Fit to the training data
 lasso_cv.fit(X_train, y_train)
-print("Tuned lasso paramaters: {}".format(lasso_cv.best_params_))
+print("Tuned lasso parameters: {}".format(lasso_cv.best_params_))
 print("Tuned lasso score: {}".format(lasso_cv.best_score_))
 
 
@@ -886,7 +911,7 @@ scikit-learn requirements
 Dealing with categorical features
 - scikit-learn will not accept categorical features by default
 - need to convert categorical features into numeric values
-- Conver to binary features called dummy variables
+- Convert to binary features called dummy variables
 * 0: Observation was NOT that category
 * 1: Observation was that category
 
@@ -940,14 +965,14 @@ music_dummies = music_dummies.drop('genre', axis=1)
 music_dummies = pd.get_dummies(music_df, drop_first=True)
 print(music_dummies.columns) -> in
 
-Index(['popularity', 'acousticness', 'danceability', 'duration_ms', 'energy', 'instrumentalness', 'liveness', 'loudeness', 'speechiness', 'tempo', 'valence', 'genre_Anime', 'genre_Blues', 'genre_Classical', 'genre_Country', 'genre_Electronic', 'genre_Hip-Hop', 'genre_Jazz', 'genre_Rap', 'genre_Rock'], dtype='object') -> out
+Index(['popularity', 'acousticness', 'danceability', 'duration_ms', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'tempo', 'valence', 'genre_Anime', 'genre_Blues', 'genre_Classical', 'genre_Country', 'genre_Electronic', 'genre_Hip-Hop', 'genre_Jazz', 'genre_Rap', 'genre_Rock'], dtype='object') -> out
 
 Linear regression with dummy variables
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.linear_model import LinearRegression
 X = music_dummies.drop('popularity', axis=1).values
 y= music_dummies['popularity'].values
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_szie=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 linreg = LinearRegression()
 linreg_cv = cross_val_score(linreg, X_train, y_train, cv=kf, scoring='neg_mean_squared_error')
@@ -958,6 +983,8 @@ print(np.sqrt(-linreg_cv)) -> in
 
 [8.15792932, 8.63117538, 7.52275279, 8.6205778, 7.91329988] -> out
 '''
+
+music_df = pd.read_csv('Supervised Learning with scikit-learn\music_clean.csv')
 
 # Create music_dummies
 music_dummies = pd.get_dummies(music_df, drop_first=True)
@@ -1027,7 +1054,7 @@ acousticness      178
 energy            178
 dtype: int64 -> out
 
-Inputing values
+Imputing values
 - Imputation - It is the use of subject-matter expertise to replace missing data with educated guesses
 - Common to use the mean
 - Can also use the median or another value
@@ -1051,7 +1078,7 @@ imp_num = SimpleImputer()
 X_train_num = imp_num.fit_transform(X_train_num)
 X_test_num = imp_num.transform(X_test_num)
 
-- by default, SimpleImputer fills nvalues with the mean
+- by default, SimpleImputer fills np.nan values with the mean
 
 X_train = np.append(X_train_num, X_train_cat, axis=1) 
 X_test = np.append(X_test_num, X_test_cat, axis=1) 
@@ -1151,7 +1178,7 @@ How to scale our data
 - Can also normalize so the data ranges from -1 to +1
 - See scikit-learn docs for further details
 
-Scalining in scikit-learn
+Scaling in scikit-learn
 from sklearn.preprocessing import StandardScaler
 X = music_df.drop('genre', axis=1).values
 y = music_df['genre'].values
@@ -1183,7 +1210,7 @@ print(knn_unscaled.score(X_test, y_test)) -> in
 0.53 -> out
 
 CV and scaling in a pipeline
-fromsklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV
 steps = [('scaler', StandardScaler()), ('knn', KNeighborsClassifier())]
 pipeline = Pipeline(steps)
 parameters = {'knn__n_neighbors': np.arange(1, 50)}
@@ -1238,7 +1265,7 @@ Different models for different problems
 some guiding principles
 - Size of the dataset
 * Fewer features = simpler model, faster training time
-* Some models such as Artificiaal Neural Networks, require a lot of data to perform well
+* Some models such as Artificial Neural Networks, require a lot of data to perform well
 - Interpretability
 * Some models are easier to explain, which can be important for stakeholders
 * Example: Linear regression has high interpretability, as we can calculate and interpret the model coefficients
@@ -1318,6 +1345,17 @@ for model in models.values():
 plt.boxplot(results, labels=models.keys())
 plt.show()
 
+
+# Create an instance of the StandardScaler
+scaler = StandardScaler()
+
+# Fit the scaler to the dataset
+scaler.fit(X_train)
+scaler.fit(X_test)
+
+# Transform the dataset using the scaler
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
 # Import mean_squared_error
 
