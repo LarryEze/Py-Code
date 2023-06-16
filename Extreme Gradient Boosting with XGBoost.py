@@ -1,3 +1,21 @@
+# import necessary packages
+import matplotlib.pyplot as plt
+import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import datasets
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn_pandas import DataFrameMapper
+from sklearn.impute import SimpleImputer
+from sklearn.base import BaseEstimator, TransformerMixin
+import numpy as np
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+
 ''' Classification with XGBoost '''
 
 '''
@@ -83,14 +101,7 @@ accuracy: 0.78333 -> out
 
 # Import xgboost
 
-# Create arrays for the features and the target: X, y
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.pipeline import FeatureUnion
-from sklearn_pandas import CategoricalImputer
-from sklearn_pandas import DataFrameMapper
-from sklearn.feature_extraction import DictVectorizer
+'''# Create arrays for the features and the target: X, y
 X, y = churn_data.iloc[:, :-1], churn_data.iloc[:, -1]
 
 # Create the training and test sets
@@ -109,7 +120,7 @@ preds = xg_cl.predict(X_test)
 
 # Compute the accuracy: accuracy
 accuracy = float(np.sum(preds == y_test))/y_test.shape[0]
-print("accuracy: %f" % (accuracy))
+print("accuracy: %f" % (accuracy))'''
 
 
 '''
@@ -131,7 +142,7 @@ Decision trees as base learners
 Decision trees and CART
 - They are constructed iteratively (i.e one binary decision at a time) until some stopping criterion is met
 - Individual decision trees in general are low-bias, high-variance learning models 
-- They are very good at learning relationships within any data you train them on, but they tend to overfit the data you use to train them on and usually generalize to new data poorly.
+- They are very good at learning relationships within any data you train them on, but they tend to overfits the data you use to train them on and usually generalize to new data poorly.
 
 CART: Classification and Regression Trees
 - XGBoost uses CART as its decision tree
@@ -139,6 +150,11 @@ CART: Classification and Regression Trees
 - The real-valued scores can be thresholded to convert into categories for classification problems if necessary.
 '''
 
+breast_cancer = datasets.load_breast_cancer()
+
+X = breast_cancer.data
+
+y = breast_cancer.target
 # Import the necessary modules
 
 # Create the training and test sets
@@ -198,7 +214,7 @@ Accuracy: 0.88315 -> out
 - metrics = metric to compute
 '''
 
-# Create arrays for the features and the target: X, y
+'''# Create arrays for the features and the target: X, y
 X, y = churn_data.iloc[:, :-1], churn_data.iloc[:, -1]
 
 # Create the DMatrix from X and y: churn_dmatrix
@@ -226,7 +242,7 @@ cv_results = xgb.cv(dtrain=churn_dmatrix, params=params, nfold=3,
 print(cv_results)
 
 # Print the AUC
-print((cv_results["test-auc-mean"]).iloc[-1])
+print((cv_results["test-auc-mean"]).iloc[-1])'''
 
 
 '''
@@ -247,7 +263,7 @@ When to NOT use XGBoost
 Regression with XGBoost
 Regression basics
 - Regression problems involves predicting continuous, or real, values
-- e.g Predicting the height in sentimeters a given person will be at 30, given some of their physical attributes at birth.
+- e.g Predicting the height in centimeters a given person will be at 30, given some of their physical attributes at birth.
 
 Common regression metrics
 - Root mean squared error (RMSE) 
@@ -258,7 +274,7 @@ Computing RMSE
 * taking the difference between the actual and the predicted values for what you are trying to predict
 * squaring those differences
 * computing their mean
-* Taking the square root of the vaue
+* Taking the square root of the value
 - NB*: It allows to treat negative and positive differences equally, but tends to punish larger difference between predicted and actual values much more than smaller ones.
 
 Actual Predicted Error Squared Error
@@ -348,6 +364,13 @@ print('RMSE: %f' &(rmse)) -> in
 
 RMSE: 124326.24465
 '''
+
+ames_housing = pd.read_csv(
+    'Extreme Gradient Boosting with XGBoost/ames_housing_trimmed_processed.csv')
+
+X = ames_housing.drop('SalePrice', axis=1)
+
+y = ames_housing['SalePrice']
 
 # Create the training and test sets
 X_train, X_test, y_train, y_test = train_test_split(
@@ -457,14 +480,14 @@ Base learners in XGBoost
 * Rarely used, as you can get identical performance from a regularized linear model.
 - Tree Base learner:
 * It uses decision trees as base models
-* The boosted model is weighted sum of decision treets (nonlinear)
+* The boosted model is weighted sum of decision trees (nonlinear)
 * Almost exclusively used in XGBoost
 
 Creating DataFrames from multiple equal-length lists
 - pd.DataFrame(list(zip(list1, list2)), columns= ['list1', 'list2']))
-- zip creates a geberator of parallel values:
+- zip creates a generator of parallel values:
 * zip([1, 2, 3], ['a', 'b', 'c']) = [1, 'a']. [2, 'b'], [3, 'c']
-* genrators need to be completely instantiated before they can be used in DataFrame objects
+* generators need to be completely instantiated before they can be used in DataFrame objects
 - List() instantiates the full generator and passing that into the DataFrame converts the whole expression
 '''
 
@@ -734,7 +757,7 @@ Random search: review
 - Its different from GridSearch since it creates a (possibly infinite) range of hyperparameter values per hyperparameter that you would like to search over
 - Set the number of iterations you would like for the random search to continue
 - During each iteration, randomly draw a value in the range of specified values for each hyperparameter searched over and train / evaluate a model with those hyperparameters
-- After you've reched the maximum numbeer of iterations, select the hyperparameter configuration with the best evaluated score.
+- After you've reached the maximum number of iterations, select the hyperparameter configuration with the best evaluated score.
 
 Random search: example
 import xgboost as xgb
@@ -845,11 +868,13 @@ Preprocessing I: LabelEncoder and OneHotEncoder
 - Cannot be done within a pipeline
 
 Preprocessing II: DictVectorizer
-- It is traditionally used in text procesing pipelines
+- It is traditionally used in text processing pipelines
 - It converts lists of feature mappings into vectors.
 - need to convert DataFrame into a list of dictionary entries
 '''
 
+df = pd.read_csv(
+    'Extreme Gradient Boosting with XGBoost/ames_unprocessed_data.csv')
 # Import LabelEncoder
 
 # Fill missing values with 0
@@ -878,7 +903,7 @@ print(df[categorical_columns].head())
 # Import OneHotEncoder
 
 # Create OneHotEncoder: ohe
-ohe = OneHotEncoder(categorical_features=categorical_mask, sparse=False)
+ohe = OneHotEncoder(sparse=False)
 
 # Apply OneHotEncoder to categorical columns - output is no longer a dataframe: df_encoded
 df_encoded = ohe.fit_transform(df)
@@ -976,6 +1001,12 @@ cross_val_scores = cross_val_score(xgb_pipeline, X.to_dict(
 print("10-fold RMSE: ", np.mean(np.sqrt(np.abs(cross_val_scores))))
 
 
+kidney_data = pd.read_csv(
+    'Extreme Gradient Boosting with XGBoost\kidney_disease.csv')
+
+X = kidney_data.drop(['id', 'classification'], axis=1)
+
+y = kidney_data['classification'].map({'ckd': 0, 'notckd': 1})
 # Import necessary modules
 
 # Check number of nulls in each feature column
@@ -992,12 +1023,20 @@ categorical_columns = X.columns[categorical_feature_mask].tolist()
 non_categorical_columns = X.columns[~categorical_feature_mask].tolist()
 
 # Apply numeric imputer
-numeric_imputation_mapper = DataFrameMapper([([numeric_feature], Imputer(
-    strategy="median")) for numeric_feature in non_categorical_columns], input_df=True, df_out=True)
+numeric_imputation_mapper = DataFrameMapper(
+    [([numeric_feature], SimpleImputer(strategy="median"))
+     for numeric_feature in non_categorical_columns],
+    input_df=True,
+    df_out=True
+)
 
 # Apply categorical imputer
-categorical_imputation_mapper = DataFrameMapper([(category_feature, CategoricalImputer(
-)) for category_feature in categorical_columns], input_df=True, df_out=True)
+categorical_imputation_mapper = DataFrameMapper(
+    [([category_feature], SimpleImputer(strategy="most_frequent"))
+     for category_feature in categorical_columns],
+    input_df=True,
+    df_out=True
+)
 
 
 # Import FeatureUnion
@@ -1006,6 +1045,23 @@ categorical_imputation_mapper = DataFrameMapper([(category_feature, CategoricalI
 numeric_categorical_union = FeatureUnion(
     [("num_mapper", numeric_imputation_mapper), ("cat_mapper", categorical_imputation_mapper)])
 
+# Apply the transformations
+transformed_data = numeric_categorical_union.fit_transform(X)
+
+# Define the Dictifier transformer
+
+
+class Dictifier(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        pass
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        df = pd.DataFrame(X)
+        return df.to_dict(orient="records")
+
 
 # Create full pipeline
 pipeline = Pipeline([("featureunion", numeric_categorical_union), ("dictifier", Dictifier(
@@ -1013,7 +1069,7 @@ pipeline = Pipeline([("featureunion", numeric_categorical_union), ("dictifier", 
 
 # Perform cross-validation
 cross_val_scores = cross_val_score(
-    pipeline, kidney_data, y, scoring="roc_auc", cv=3)
+    pipeline, X, y, scoring="roc_auc", cv=3)
 
 # Print avg. AUC
 print("3-fold AUC: ", np.mean(cross_val_scores))
