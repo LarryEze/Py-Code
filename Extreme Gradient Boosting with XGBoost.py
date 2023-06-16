@@ -101,7 +101,7 @@ accuracy: 0.78333 -> out
 
 # Import xgboost
 
-'''# Create arrays for the features and the target: X, y
+# Create arrays for the features and the target: X, y
 X, y = churn_data.iloc[:, :-1], churn_data.iloc[:, -1]
 
 # Create the training and test sets
@@ -120,7 +120,7 @@ preds = xg_cl.predict(X_test)
 
 # Compute the accuracy: accuracy
 accuracy = float(np.sum(preds == y_test))/y_test.shape[0]
-print("accuracy: %f" % (accuracy))'''
+print("accuracy: %f" % (accuracy))
 
 
 '''
@@ -214,7 +214,7 @@ Accuracy: 0.88315 -> out
 - metrics = metric to compute
 '''
 
-'''# Create arrays for the features and the target: X, y
+# Create arrays for the features and the target: X, y
 X, y = churn_data.iloc[:, :-1], churn_data.iloc[:, -1]
 
 # Create the DMatrix from X and y: churn_dmatrix
@@ -242,7 +242,7 @@ cv_results = xgb.cv(dtrain=churn_dmatrix, params=params, nfold=3,
 print(cv_results)
 
 # Print the AUC
-print((cv_results["test-auc-mean"]).iloc[-1])'''
+print((cv_results["test-auc-mean"]).iloc[-1])
 
 
 '''
