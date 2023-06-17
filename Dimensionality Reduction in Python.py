@@ -1,3 +1,20 @@
+# import necessary packages
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
+from sklearn.feature_selection import RFE, VarianceThreshold
+from sklearn.manifold import TSNE
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Lasso, LassoCV, LinearRegression, LogisticRegression
+
+
 ''' Exploring High Dimensional Data '''
 
 '''
@@ -47,9 +64,10 @@ freq      1             3-> out
 number_cols = ['HP', 'Attack', 'Defense']
 
 # Remove the feature without variance from this list
-non_number_cols = ['Name', 'Type']
+non_number_cols = ['Name', 'Type 1']
 
 # Create a new DataFrame by subselecting the chosen features
+pokemon_df = pd.read_csv('Dimensionality Reduction in Python\pokemon.csv')
 df_selected = pokemon_df[number_cols + non_number_cols]
 
 # Prints the first 5 lines of the new DataFrame
@@ -90,11 +108,25 @@ income age
 Building a pairplot on ANSUR data
 sns.pairplot(ansur_df, hue='gender', diag_kind='hist')
 
-- when we apply feature selection, we completely remove a feature and the information it holds from the datset.
+- when we apply feature selection, we completely remove a feature and the information it holds from the dataset.
 - Feature selection is the process by which a subset of relevant features, or variables, are selected from a larger data set for constructing models.
 - Feature extraction is a process of dimensionality reduction by which an initial set of raw data is reduced to more manageable groups for processing.
 - PCA or Principal Component Analysis helps reduce dimensionality while keeping the variance of the data
 '''
+
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+ansur['n_legs'] = 2
+
+ansur_df_1 = ansur[['Gender', 'weight_kg',
+                    'stature_m', 'earlength']]
+
+ansur_df_2 = ansur[['Gender', 'footlength',
+                    'headlength', 'n_legs']]
 
 # Create a pairplot and color the points using the 'Gender' feature
 sns.pairplot(ansur_df_1, hue='Gender', diag_kind='hist')
@@ -165,8 +197,15 @@ sns.scatterplot(x='x', y='y', hue='Height_class', data=df)
 plt.show()
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+df = pd.concat([ansur_male, ansur_female], axis=0)
+
 # Non-numerical columns in the dataset
-non_numeric = ['Branch', 'Gender', 'Component']
+non_numeric = ['Branch', 'Gender', 'Component', 'BMI_class', 'Height_class']
 
 # Drop the non-numerical columns from df
 df_numeric = df.drop(non_numeric, axis=1)
@@ -179,11 +218,20 @@ tsne_features = m.fit_transform(df_numeric)
 print(tsne_features.shape)
 
 
+df['x'] = tsne_features[:, 0]
+df['y'] = tsne_features[:, 1]
+
 # Color the points according to Army Component
 sns.scatterplot(x="x", y="y", hue='Component', data=df)
 
+# Show the plot
+plt.show()
+
 # Color the points by Army Branch
 sns.scatterplot(x="x", y="y", hue='Branch', data=df)
+
+# Show the plot
+plt.show()
 
 # Color the points by Gender
 sns.scatterplot(x="x", y="y", hue='Gender', data=df)
@@ -253,6 +301,16 @@ Paris   5.2     2         2             290
 -NB*: to avoid overfitting, the number of observations should increase exponentially with the number of features.
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+
+non_numeric = ['Branch', 'Component', 'BMI_class', 'Height_class']
+
+ansur_df = ansur.drop(non_numeric, axis=1)
 # Import train_test_split()
 
 # Select the Gender column as the feature to be predicted (y)
@@ -400,16 +458,33 @@ Charmander   Fire   309  39     52      43
 Charmeleon   Fire   405  58     64      58 -> out
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+
+ansur['measurement_error'] = 0.1
+
+columns = ['headbreadth', 'headcircumference',
+           'headlength', 'tragiontopofhead', 'measurement_error']
+
+head_df = ansur[columns]
+
 # Create the boxplot
 head_df.boxplot()
+plt.show()
 
 # Normalize the data
 normalized_df = head_df / head_df.mean()
 
+# Create the boxplot
+normalized_df.boxplot()
+plt.show()
+
 # Print the variances of the normalized data
 print(normalized_df.var())
-
-plt.show()
 
 
 # Create a VarianceThreshold feature selector
@@ -427,6 +502,9 @@ reduced_df = head_df.loc[:, mask]
 print(
     f"Dimensionality reduced from {head_df.shape[1]} to {reduced_df.shape[1]}.")
 
+
+school_df = pd.read_csv(
+    'Dimensionality Reduction in Python\Public_Schools2.csv')
 
 # Create a boolean mask on whether each feature less than 50% missing values.
 mask = school_df.isna().sum() / len(school_df) < 0.5
@@ -455,7 +533,7 @@ weight_lbs        1.00      1.00     0.47
 weight_kg         1.00      1.00     0.47
 heigh_in          0.47      0.47     1.00 -> out
 
-Visualizing the correkation matrix
+Visualizing the correlation matrix
 cmap = sns.diverging_palette(h_neg=10, h_pos=240, as_cmap=True)
 sns.heatmap(weights_df.corr(), center=0, cmap=cmap, linewidths=1, annot=True, fmt='.2f')
 
@@ -470,8 +548,25 @@ sns.heatmap(weights_df.corr(), mask=mask, center=0, cmap=cmap, linewidths=1, ann
 - np.triu() for triangle upper, function to set all non-upper triangle values to False
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+
+ansur['measurement_error'] = 0.1
+
+columns = ['elbowrestheight', 'waistcircumference',
+           'anklecircumference', 'buttockheight', 'crotchheight']
+
+ansur_df = ansur[columns]
+
 # Create the correlation matrix
 corr = ansur_df.corr()
+
+# Set the colormap to a blue color scheme
+cmap = "Blues"
 
 # Draw a heatmap of the correlation matrix
 sns.heatmap(corr,  cmap=cmap, center=0, linewidths=1, annot=True, fmt=".2f")
@@ -519,6 +614,13 @@ Correlation caveats - Anscombe's quartet (i.e the same correlation coefficients 
 - NB*: Strong correlations do not imply causation.
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur_df = pd.concat([ansur_male, ansur_female], axis=0)
+
 # Calculate the correlation matrix and take the absolute value
 corr_df = ansur_df.corr().abs()
 
@@ -534,6 +636,14 @@ reduced_df = ansur_df.drop(to_drop, axis=1)
 
 print(f"The reduced_df DataFrame has {reduced_df.shape[1]} columns.")
 
+
+pool_drownings = [421, 465, 494, 538, 430, 530, 511, 600, 582, 605, 603]
+
+nuclear_energy = [728.3, 753.9, 768.8, 780.1, 763.7, 788.5, 782., 787.2, 806.4,
+                  806.2, 798.9]
+
+weird_df = pd.DataFrame(
+    {'pool_drownings': pool_drownings, 'nuclear_energy': nuclear_energy})
 
 # Print the first five lines of weird_df
 print(weird_df.head())
@@ -621,10 +731,22 @@ print(accuracy_score(y_test, rfe.predict(X_test_std))) -> in
 0.99 -> out
 '''
 
+diabetes_df = pd.read_csv(
+    'Dimensionality Reduction in Python\PimaIndians.csv')
+
+X = diabetes_df.drop('test', axis=1)
+
+y = diabetes_df['test'].values
+
+# Split the data, instantiate a classifier and fit the data
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
 # Fit the scaler on the training features and transform these in one go
+scaler = StandardScaler()
 X_train_std = scaler.fit_transform(X_train, y_train)
 
 # Fit the logistic regression model on the scaled training data
+lr = LogisticRegression()
 lr.fit(X_train_std, y_train)
 
 # Scale the test features
@@ -654,6 +776,7 @@ acc = accuracy_score(y_test, lr.predict(scaler.transform(X_test)))
 print(f"{acc:.1%} accuracy on test set.")
 print(dict(zip(X.columns, abs(lr.coef_[0]).round(2))))
 
+
 # Remove the 2 features with the lowest model coefficients
 X = diabetes_df[['glucose', 'triceps', 'bmi', 'family', 'age']]
 
@@ -668,6 +791,7 @@ lr.fit(scaler.fit_transform(X_train), y_train)
 acc = accuracy_score(y_test, lr.predict(scaler.transform(X_test)))
 print(f"{acc:.1%} accuracy on test set.")
 print(dict(zip(X.columns, abs(lr.coef_[0]).round(2))))
+
 
 # Only keep the feature with the highest coefficient
 X = diabetes_df[['glucose']]
@@ -684,6 +808,16 @@ acc = accuracy_score(y_test, lr.predict(scaler.transform(X_test)))
 print(f"{acc:.1%} accuracy on test set.")
 print(dict(zip(X.columns, abs(lr.coef_[0]).round(2))))
 
+
+diabetes_df = pd.read_csv(
+    'Dimensionality Reduction in Python\PimaIndians.csv')
+
+X = diabetes_df.drop('test', axis=1)
+
+y = diabetes_df['test'].values
+
+# Split the data, instantiate a classifier and fit the data
+X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 # Create the RFE with a LogisticRegression estimator and 3 features to select
 rfe = RFE(estimator=LogisticRegression(), n_features_to_select=3, verbose=1)
@@ -728,7 +862,7 @@ print(sum(rf.feature_importances_)) -> in
 
 1.0 -> out
 
-Feature importace as a feature selector
+Feature importance as a feature selector
 mask = rf.feature_importances_ > 0.1
 print(mask) -> in
 
@@ -769,6 +903,13 @@ print(X.columns[rfe.support_]) -> in
 Index(['biacromiabreadth', 'handbreadth', 'handcircumference', 'neckcircumference', 'neckcircumferencebase', 'shouldercircumference'], dtype='object') -> out
 '''
 
+diabetes_df = pd.read_csv(
+    'Dimensionality Reduction in Python\PimaIndians.csv')
+
+X = diabetes_df.drop('test', axis=1)
+
+y = diabetes_df['test'].values
+
 # Perform a 75% training and 25% test data split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=0)
@@ -789,6 +930,9 @@ print(f"{acc:.1%} accuracy on test set.")
 
 # Create a mask for features importances above the threshold
 mask = rf.feature_importances_ > 0.15
+
+# Prints out the mask
+print(mask)
 
 # Apply the mask to the feature dataset X
 reduced_X = X.loc[:, mask]
@@ -875,6 +1019,20 @@ print(la.score(X_test, y_test)) -> in
 0.974 -> out
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+
+columns = ['Branch', 'Component', 'Gender', 'weight_kg',
+           'stature_m', 'BMI', 'BMI_class', 'Height_class']
+
+X = ansur.drop(columns, axis=1)
+
+y = ansur['BMI'].values
+
 # Set the test size to 30% to get a 70-30% train test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=0)
@@ -913,7 +1071,7 @@ la.fit(X_train_std, y_train)
 r_squared = la.score(X_test_std, y_test)
 n_ignored_features = sum(la.coef_ == 0)
 
-# Print peformance stats
+# Print performance stats
 print(
     f"The model can predict {r_squared:.1%} of the variance in the test set.")
 print(f"{n_ignored_features} out of {len(la.coef_)} features were ignored.")
@@ -952,7 +1110,7 @@ reduced_X = X.loc[:, mask]
 
 Taking a step back
 - Random forest is a combination of decision trees
-- We can use combination of models for feature selction too
+- We can use combination of models for feature selection too
 
 Feature selection with LassoCV
 from sklearn.linear_model import LassoCV
@@ -992,6 +1150,15 @@ mask = votes >= 2
 reduced_X = X.loc[:, mask]
 '''
 
+ansur = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+
+columns = ['Branch', 'Component', 'Gender', 'bicepscircumferenceflexed', 'weight_kg',
+           'stature_m', 'BMI_class', 'Height_class']
+
+X = ansur.drop(columns, axis=1)
+
+y = ansur['bicepscircumferenceflexed'].values
 
 # Create and fit the LassoCV model on the training set
 lcv = LassoCV()
@@ -1035,6 +1202,7 @@ rf_mask = rfe_rf.support_
 
 # Sum the votes of the three models
 votes = np.sum([lcv_mask, rf_mask, gb_mask], axis=0)
+print(votes)
 
 # Create a mask for features selected by all 3 models
 meta_mask = votes == 3
@@ -1045,8 +1213,11 @@ X_reduced = X.loc[:, meta_mask]
 # Plug the reduced dataset into a linear regression pipeline
 X_train, X_test, y_train, y_test = train_test_split(
     X_reduced, y, test_size=0.3, random_state=0)
+
+lm = LinearRegression()
 lm.fit(scaler.fit_transform(X_train), y_train)
 r_squared = lm.score(scaler.transform(X_test), y_test)
+
 print(
     f'The model can explain {r_squared:.1%} of the variance in the test set using {len(lm.coef_)} features.')
 
@@ -1092,6 +1263,8 @@ scaler = StandardScaler()
 df_std = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
 '''
 
+sales_df = pd.read_csv('Dimensionality Reduction in Python\grocery_sales.csv')
+
 # Calculate the price from the quantity sold and revenue
 sales_df['price'] = sales_df['revenue'] / sales_df['quantity']
 
@@ -1100,6 +1273,21 @@ reduced_df = sales_df.drop(['quantity', 'revenue'], axis=1)
 
 print(reduced_df.head())
 
+
+weight_kg = [81.5,  72.6,  92.9,  79.4,  94.6,  80.2, 116.2,  95.4,  99.5, 70.2,  88.2,  70.1, 103.7, 111.6,  89.6,  92.4,  77.9,  96.9, 76.,  90.8,  71.4,  74.6,  79.2,  91.5,  96.5,  67.5, 107.3, 79.3,  78.2,  88.2,  71.5,  94.7,  66.5,  87.9,  67.5,  88.4, 69.5, 121.8,  71.9,  88.1,  57.5,  87.6,  85.,  86.5,  95.8, 66.7,  70.6,  84.7, 101.3,
+             85.6, 109.5,  83.4,  72.7,  98.6, 77.3, 140.,  67.4,  88.4,  98.8,  95.2,  56.6,  71.7,  71.7, 80.2,  98.8,  66.2,  80.7, 105.3,  68.3,  74.9,  73.8,  60.4, 77.4,  76.8, 102.2,  96.3,  92.3,  98.8,  88.7,  98.7,  85.2, 74.8,  92.,  74.4,  82.3,  62.7,  77.8,  88.2,  59.,  73., 86.4,  86.6,  73.7,  65.4,  69.6,  77.5,  72.7,  79.7,  74.4, 96.8]
+
+height_1 = [1.78, 1.7, 1.74, 1.66, 1.91, 1.72, 1.81, 1.85, 1.78, 1.81, 1.78, 1.73, 1.81, 1.86, 1.71, 1.74, 1.69, 1.77, 1.75, 1.79, 1.78, 1.68, 1.65, 1.96, 1.76, 1.63, 1.82, 1.8, 1.74, 1.82, 1.88, 1.76, 1.68, 1.85, 1.78, 1.79, 1.68, 1.85, 1.74, 1.74, 1.74, 1.68, 1.84, 1.73, 1.76, 1.67, 1.74, 1.71, 1.88,
+            1.67, 1.78, 1.84, 1.64, 1.75, 1.7, 1.84, 1.78, 1.75, 1.7, 1.85, 1.61, 1.71, 1.84, 1.68, 1.74, 1.7, 1.67, 1.85, 1.75, 1.62, 1.77, 1.7, 1.62, 1.73, 1.84, 1.74, 1.67, 1.75, 1.82, 1.8, 1.75, 1.72, 1.81, 1.79, 1.72, 1.58, 1.72, 1.8, 1.74, 1.7, 1.74, 1.73, 1.78, 1.82, 1.84, 1.79, 1.66, 1.7, 1.79, 1.76]
+
+height_2 = [1.8, 1.7, 1.75, 1.68, 1.93, 1.71, 1.82, 1.85, 1.78, 1.81, 1.78, 1.74, 1.82, 1.86, 1.71, 1.74, 1.7, 1.77, 1.75, 1.78, 1.75, 1.69, 1.66, 1.95, 1.78, 1.62, 1.82, 1.8, 1.76, 1.83, 1.88, 1.76, 1.67, 1.83, 1.78, 1.79, 1.69, 1.86, 1.74, 1.74, 1.73, 1.67, 1.82, 1.75, 1.75, 1.67, 1.73, 1.72, 1.86,
+            1.67, 1.77, 1.84, 1.63, 1.74, 1.7, 1.84, 1.78, 1.75, 1.69, 1.85, 1.6, 1.71, 1.83, 1.66, 1.74, 1.7, 1.65, 1.85, 1.74, 1.62, 1.78, 1.7, 1.63, 1.72, 1.84, 1.73, 1.66, 1.74, 1.82, 1.8, 1.74, 1.73, 1.81, 1.77, 1.73, 1.6, 1.73, 1.8, 1.73, 1.71, 1.74, 1.74, 1.78, 1.83, 1.84, 1.8, 1.66, 1.72, 1.79, 1.76]
+
+height_3 = [1.8, 1.69, 1.73, 1.67, 1.9, 1.74, 1.81, 1.84, 1.8, 1.82, 1.8, 1.74, 1.8, 1.88, 1.71, 1.75, 1.7, 1.77, 1.76, 1.8, 1.78, 1.67, 1.65, 1.97, 1.75, 1.63, 1.82, 1.82, 1.75, 1.82, 1.87, 1.77, 1.67, 1.85, 1.77, 1.8, 1.69, 1.85, 1.74, 1.73, 1.73, 1.68, 1.84, 1.74, 1.78, 1.68, 1.73, 1.72, 1.87,
+            1.67, 1.78, 1.86, 1.63, 1.74, 1.7, 1.83, 1.79, 1.74, 1.69, 1.85, 1.61, 1.73, 1.85, 1.68, 1.73, 1.71, 1.66, 1.83, 1.76, 1.62, 1.78, 1.7, 1.63, 1.72, 1.83, 1.75, 1.66, 1.74, 1.82, 1.8, 1.75, 1.71, 1.8, 1.77, 1.73, 1.56, 1.71, 1.8, 1.73, 1.72, 1.73, 1.73, 1.78, 1.81, 1.85, 1.79, 1.67, 1.71, 1.81, 1.77]
+
+height_df = pd.DataFrame({'weight_kg': weight_kg, 'height_1': height_1,
+                         'height_2': height_2, 'height_3': height_3})
 
 # Calculate the mean height
 height_df['height'] = height_df[[
@@ -1149,11 +1337,22 @@ array([ 0.44, 0.62, 0.66, 0.69, 0.72, 0.74, 0.76, 0.77, 0.79, 0.8 , 0.81,
         1.  , 1.  , 1.  , 1.  , 1.  , 1.  ]) -> out
 '''
 
+ansur_male = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_MALE.csv')
+ansur_female = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+ansur = pd.concat([ansur_male, ansur_female], axis=0)
+
+columns = ['BMI', 'buttockheight',
+           'waistcircumference', 'shouldercircumference']
+
+ansur_df = ansur[columns]
+
 # Create a pairplot to inspect ansur_df
 sns.pairplot(ansur_df)
 
 plt.show()
-
 
 # Create the scaler
 scaler = StandardScaler()
@@ -1168,6 +1367,11 @@ pc_df = pd.DataFrame(pc, columns=['PC 1', 'PC 2', 'PC 3', 'PC 4'])
 sns.pairplot(pc_df)
 plt.show()
 
+
+columns = ['stature_m', 'buttockheight', 'waistdepth', 'span', 'waistcircumference', 'shouldercircumference', 'footlength',
+           'handlength', 'functionalleglength', 'chestheight', 'chestcircumference', 'cervicaleheight', 'sittingheight']
+
+ansur_df = ansur[columns]
 
 # Scale the data
 scaler = StandardScaler()
@@ -1253,6 +1457,14 @@ print(pipe.score(X_test, y_test)) -> in
 0.986 -> out
 '''
 
+pokemon_df = pd.read_csv('Dimensionality Reduction in Python\pokemon.csv')
+
+columns = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']
+poke_df = pokemon_df[columns]
+
+columns = ['Type 1', 'Legendary']
+poke_cat_df = pokemon_df[columns]
+
 # Build the pipeline
 pipe = Pipeline([('scaler', StandardScaler()),
                 ('reducer', PCA(n_components=2))])
@@ -1271,13 +1483,15 @@ pipe = Pipeline([('scaler', StandardScaler()),
 
 # Fit the pipeline to poke_df and transform the data
 pc = pipe.fit_transform(poke_df)
+print(pc)
 
 # Add the 2 components to poke_cat_df
 poke_cat_df['PC 1'] = pc[:, 0]
 poke_cat_df['PC 2'] = pc[:, 1]
+print(poke_cat_df.head())
 
 # Use the Type feature to color the PC 1 vs. PC 2 scatterplot
-sns.scatterplot(data=poke_cat_df, x='PC 1', y='PC 2', hue='Type')
+sns.scatterplot(data=poke_cat_df, x='PC 1', y='PC 2', hue='Type 1')
 plt.show()
 
 
@@ -1295,6 +1509,15 @@ poke_cat_df['PC 2'] = pc[:, 1]
 sns.scatterplot(data=poke_cat_df, x='PC 1', y='PC 2', hue='Legendary')
 plt.show()
 
+
+pokemon_df = pd.read_csv('Dimensionality Reduction in Python\pokemon.csv')
+
+columns = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']
+X = pokemon_df[columns]
+
+y = pokemon_df['Legendary'].values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 # Build the pipeline
 pipe = Pipeline([('scaler', StandardScaler()), ('reducer', PCA(
@@ -1364,6 +1587,13 @@ print(X_rebuilt.shape) -> in
 img_plotter(X_rebuilt) -> in 
 '''
 
+ansur = pd.read_csv(
+    'Dimensionality Reduction in Python\ANSUR_II_FEMALE.csv')
+
+columns = ['Branch', 'Component', 'Gender', 'BMI_class', 'Height_class']
+
+ansur_df = ansur.drop(columns, axis=1)
+
 # Pipe a scaler to PCA selecting 80% of the variance
 pipe = Pipeline([('scaler', StandardScaler()),
                 ('reducer', PCA(n_components=0.8))])
@@ -1397,6 +1627,18 @@ plt.plot(pipe['reducer'].explained_variance_ratio_)
 plt.xlabel('Principal component index')
 plt.ylabel('Explained variance ratio')
 plt.show()
+
+
+# A function plot_digits that will plot 16 images in a grid.
+def plot_digits(digits):
+    fig, axes = plt.subplots(4, 4, figsize=(8, 8))
+
+    for i, ax in enumerate(axes.flat):
+        ax.imshow(digits[i].reshape(8, 8), cmap='gray')
+        ax.set_xticks([])
+        ax.set_yticks([])
+    plt.tight_layout()
+    plt.show()
 
 
 # Plot the MNIST sample data
