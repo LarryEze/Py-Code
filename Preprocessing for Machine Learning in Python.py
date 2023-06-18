@@ -1,3 +1,15 @@
+# import necessary packages
+import re
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
 ''' Introduction to Data Preprocessing '''
 
 '''
@@ -110,6 +122,9 @@ print(df.dropna(thresh=2)) -> in
 4 5.0 9.0 7.0 -> out
 '''
 
+volunteer = pd.read_csv(
+    'Preprocessing for Machine Learning in Python/volunteer_opportunities.csv')
+
 # Drop the Latitude and Longitude columns from volunteer
 volunteer_cols = volunteer.drop(['Latitude', 'Longitude'], axis=1)
 
@@ -179,7 +194,7 @@ dtype: object -> out
 print(volunteer["hits"].head())
 
 # Convert the hits column to type int
-volunteer["hits"] = volunteer["hits"].astype('int')
+volunteer["hits"] = volunteer["hits"].astype('int64')
 
 # Look at the dtypes of the dataset
 print(volunteer.dtypes)
@@ -223,6 +238,8 @@ class2 5
 Name: labels, dtype: int64 -> out
 '''
 
+volunteer = volunteer.dropna(subset=['category_id', 'category_desc'])
+
 # Create a DataFrame with all columns except category_desc
 X = volunteer.drop('category_desc', axis=1)
 
@@ -262,6 +279,13 @@ When to standardize: different scales
 - Linearity assumptions
 - Example: Predicting house prices using no. of bedrooms and last sale price
 '''
+
+wine = pd.read_csv(
+    'Preprocessing for Machine Learning in Python\wine_types.csv')
+
+X = wine[['Proline', 'Total phenols', 'Hue', 'Nonflavanoid phenols']]
+
+y = wine['Type']
 
 # Split the dataset into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(
@@ -411,6 +435,10 @@ X - contains features
 y - contains labels
 '''
 
+X = wine.drop('Type', axis=1)
+
+y = wine['Type']
+
 # Split the dataset and labels into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, stratify=y, random_state=42)
@@ -446,7 +474,7 @@ Feature Engineering
 What is Feature Engineering
 - It is the creation of new features based on existing features
 - It adds information to the dataset that can improve prediction or clustering tasks, or adds insights into relationships between features
-- It requires an in-depth knowedge of the dataset
+- It requires an in-depth knowledge of the dataset
 - It is very dependent on the particular dataset being analyzed
 
 Feature engineering scenarios
@@ -541,6 +569,9 @@ print(pd.get_dummies(users['fav_color'])) -> in
 3   0       1       0 -> out
 '''
 
+hiking = pd.read_json(
+    'Preprocessing for Machine Learning in Python\hiking.json')
+
 # Set up the LabelEncoder object
 enc = LabelEncoder()
 
@@ -550,6 +581,9 @@ hiking['Accessible_enc'] = enc.fit_transform(hiking['Accessible'])
 # Compare the two columns
 print(hiking[['Accessible', 'Accessible_enc']].head())
 
+
+volunteer = pd.read_csv(
+    'Preprocessing for Machine Learning in Python/volunteer_opportunities.csv')
 
 # Transform the category_desc column
 category_enc = pd.get_dummies(volunteer["category_desc"])
@@ -598,6 +632,16 @@ print(purchases) -> in
 3    March 31 2012    $32.61        2012-03-31      3
 4 February 05 2011    $75.98        2011-02-05      2 -> out
 '''
+
+name = ['Sue', 'Mark', 'Sean', 'Erin', 'Jenny', 'Russell']
+run1 = [20.1, 16.5, 23.5, 21.7, 25.8, 30.9]
+run2 = [18.5, 17.1, 25.1, 21.1, 27.1, 29.6]
+run3 = [19.6, 16.9, 25.2, 20.9, 26.1, 31.4]
+run4 = [20.3, 17.6, 24.6, 22.1, 26.7, 30.4]
+run5 = [18.3, 17.3, 23.9, 22.2, 26.9, 29.9]
+
+running_times_5k = pd.DataFrame(
+    {'name': name, 'run1': run1, 'run2': run2, 'run3': run3, 'run4': run4, 'run5': run5})
 
 # Use .loc to create a mean column
 running_times_5k["mean"] = running_times_5k.loc[:, 'run1':'run5'].mean(axis=1)
@@ -653,6 +697,9 @@ Text classification
 P(A|B) = P(B|A)P(A) / P(B)
 '''
 
+hiking = pd.read_json(
+    'Preprocessing for Machine Learning in Python\hiking.json')
+
 # Write a pattern to extract numbers and decimals
 
 
@@ -665,6 +712,8 @@ def return_mileage(length):
     if mile is not None:
         return float(mile.group(0))
 
+
+hiking = hiking.dropna(subset=['Length'])
 
 # Apply the function to the Length column and take a look at both columns
 hiking["Length_num"] = hiking['Length'].apply(return_mileage)
@@ -681,12 +730,26 @@ tfidf_vec = TfidfVectorizer()
 text_tfidf = tfidf_vec.fit_transform(title_text)
 
 
+volunteer = volunteer[['category_desc', 'title']]
+volunteer = volunteer.dropna(subset=['category_desc'])
+
+# Take the title text
+title_text = volunteer["title"]
+
+# Create the vectorizer method
+tfidf_vec = TfidfVectorizer()
+
+# Transform the text into tf-idf vectors
+text_tfidf = tfidf_vec.fit_transform(title_text)
+
 # Split the dataset according to the class distribution of category_desc
 y = volunteer["category_desc"]
+
 X_train, X_test, y_train, y_test = train_test_split(
     text_tfidf.toarray(), y, stratify=y, random_state=42)
 
 # Fit the model to the training data
+nb = GaussianNB()
 nb.fit(X_train, y_train)
 
 # Print out the model's accuracy
@@ -745,6 +808,25 @@ B    0.787194    1.000000    0.565468
 C    0.543479    0.565468    1.000000 -> out
 '''
 
+columns = ['vol_requests', 'title', 'hits', 'category_desc', 'locality', 'region', 'postalcode', 'created_date', 'vol_requests_lognorm',
+           'created_month', 'Education', 'Emergency Preparedness', 'Environment', 'Health', 'Helping Neighbors in Need', 'Strengthening Communities']
+
+volunteer = pd.read_csv(
+    'Preprocessing for Machine Learning in Python/volunteer_opportunities.csv')
+
+volunteer = volunteer.dropna(subset=['category_desc'])
+
+volunteer['vol_requests_lognorm'] = np.log(volunteer['vol_requests'])
+
+volunteer['created_date'] = pd.to_datetime(volunteer['created_date'])
+volunteer['created_month'] = volunteer['created_date'].dt.month
+
+category_enc = pd.get_dummies(volunteer["category_desc"])
+
+volunteer = pd.concat([volunteer, category_enc], axis=1)
+
+volunteer = volunteer[columns]
+
 # Create a list of redundant column names to drop
 to_drop = ['locality', 'region', 'created_date',
            "vol_requests", 'category_desc']
@@ -755,6 +837,11 @@ volunteer_subset = volunteer.drop(to_drop, axis=1)
 # Print out the head of volunteer_subset
 print(volunteer_subset.head())
 
+
+columns = ['Flavanoids', 'Total phenols', 'Malic acid',
+           'OD280/OD315 of diluted wines', 'Hue']
+
+wine = wine[columns]
 
 # Print out the column correlations of the wine dataset
 print(wine.corr())
@@ -816,6 +903,8 @@ def return_weights(vocab, original_vocab, vector, vector_index, top_n):
     return [original_vocab[i] for i in zipped_index]
 
 
+vocab = {v: k for k, v in tfidf_vec.vocabulary_.items()}
+
 # Print out the weighted words
 print(return_weights(vocab, tfidf_vec.vocabulary_,
       text_tfidf, vector_index=8, top_n=3))
@@ -859,7 +948,7 @@ Dimensionality reduction and PCA
 
 Principal Component Analysis (PCA)
 - It uses a linear transformation to project features into a space where they are completely uncorrelated.
-- it captures as much variance as posible by combining features into components
+- it captures as much variance as possible by combining features into components
 
 PCA in scikit-learn
 from sklearn.decomposition import PCA
@@ -879,6 +968,9 @@ PCA caveats
 - It can be very difficult to interpret PCA components
 - Its a good step at the end of the preprocessing journey
 '''
+
+wine = pd.read_csv(
+    'Preprocessing for Machine Learning in Python\wine_types.csv')
 
 # Instantiate a PCA object
 pca = PCA()
@@ -909,6 +1001,9 @@ print(knn.score(pca_X_test, y_test))
 
 ''' UFOs and preprocessing '''
 
+ufo = pd.read_csv(
+    'Preprocessing for Machine Learning in Python/ufo_sightings_large.csv')
+
 # Print the DataFrame info
 print(ufo.info())
 
@@ -922,6 +1017,9 @@ ufo["date"] = pd.to_datetime(ufo["date"])
 print(ufo.info())
 
 
+columns = ['date', 'state', 'type', 'length_of_time']
+ufo = ufo[columns]
+
 # Count the missing values in the length_of_time, state, and type columns, in that order
 print(ufo[['length_of_time', 'state', 'type']].isna().sum())
 
@@ -933,6 +1031,17 @@ print(ufo_no_missing.shape)
 
 
 ''' Categorical variables and standardization '''
+
+ufo = pd.read_csv(
+    'Preprocessing for Machine Learning in Python/ufo_sightings_large.csv', parse_dates=['date'])
+
+# Convert the column to numeric, setting non-convertible values to NaN
+ufo['lat'] = pd.to_numeric(ufo['lat'], errors='coerce')
+
+ufo = ufo[(ufo['seconds'] >= 60) &
+          (ufo['seconds'] <= 6000) & (ufo['lat'] >= 0) & (ufo['lat'] <= 64.283) & (ufo['long'] <= 6.742)]
+
+ufo = ufo.dropna()
 
 
 def return_minutes(time_string):
