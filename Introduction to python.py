@@ -448,8 +448,8 @@ Packages are directory of python scripts where each script represents modules wh
 http://pip.readthedocs.org/en/stable/installing/
 
 TensorFlow
-SciPy
-NumPy (Numeric Python)  -   (scientific computing)
+SciPy                   -   (scientific computing)
+NumPy                   -   (Numeric Python)  
 Pandas                  -   (data analysis)
 Matplotlib              -   (data visualization)
 Keras
