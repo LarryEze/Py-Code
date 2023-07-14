@@ -78,7 +78,9 @@ soccer_shooting = np.genfromtxt(
 
 # In-line comments
 
-""" Multi-line comments """
+""" 
+Multi-line comments 
+"""
 
 # Print the sum of 7 and 10
 print(7 + 10)
