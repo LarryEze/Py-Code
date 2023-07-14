@@ -953,10 +953,10 @@ print(cars)
 Random Numbers
 
 import numpy as np
-np.random.rand()    # Pseudo-random numbers
+np.random.rand()        # Pseudo-random numbers
 
-np.random.seed(123)    # Starting from a seed
-np.random.rand()    # ensures reproducibility
+np.random.seed(123)     # Starting from a seed
+np.random.rand()        # ensures reproducibility
 
 e.g
 import numpy as np
